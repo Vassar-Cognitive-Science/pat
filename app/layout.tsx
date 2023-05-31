@@ -1,4 +1,5 @@
-// app/layout.tsx
+'use client'
+
 import { Providers } from "./providers";
 
 export default function RootLayout({
