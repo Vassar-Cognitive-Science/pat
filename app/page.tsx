@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from "react";
-import { Box, Flex, Input, Button, Text } from "@chakra-ui/react";
+import { Box, Flex, Input, Button, Spinner } from "@chakra-ui/react";
 import ChatMessage from "../components/chatmessage";
 
 interface Message {
@@ -72,6 +72,9 @@ export default function Chat() {
             bg={message.bg}
           />
         ))}
+        {isSending && (
+          <Spinner></Spinner>
+        )}
       </Box>
       <Flex>
       <Input
