@@ -1,8 +1,6 @@
-'use client'
-
-import { useState } from "react";
-import { Box, Flex, Input, Button, Spinner } from "@chakra-ui/react";
+import { useState, useRef } from "react";
 import ChatMessage from "../components/chatmessage";
+import getPatMessage from "../lib/getPatMessage";
 
 interface Message {
   sender: string;
@@ -10,17 +8,18 @@ interface Message {
   bg: string;
 }
 
-async function getPatResponse() {
-  return new Promise<Message>((resolve) => {
-    setTimeout(() => {
-      resolve(
-        { sender: "Pat", message:"Hello there!", bg: "blue.500" }
-      );
-    }, 1000); // Simulate a 1 second delay
-  });
+async function getPatResponse(messageText: string):Promise<Message> {
+  const message = await getPatMessage(messageText);
+  return {
+    sender: "Pat",
+    message,
+    bg: "blue.500",
+  };
 }
 
 export default function Chat() {
+
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const [messages, setMessages] = useState<Message[]>([
     { sender: "Pat", message: "Hi there!", bg: "blue.500" }
@@ -48,9 +47,11 @@ export default function Chat() {
       ...newMessage,
       message: "",
     });
-    const response = await getPatResponse();
+    const response = await getPatResponse(newMessage.message);
     setMessages([...messages, newMessage, response]);
     setIsSending(false);
+    console.log(inputRef.current);
+    inputRef.current?.focus()
   };
 
   return (
@@ -77,13 +78,19 @@ export default function Chat() {
         )}
       </Box>
       <Flex>
-      <Input
+        <Input
           placeholder="Type a message..."
           flex={1}
           mr={2}
           value={newMessage.message}
           onChange={handleInputChange}
           disabled={isSending}
+          ref={inputRef}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              handleSendClick();
+            }
+          }}
         />
         <Button
           colorScheme="blue"

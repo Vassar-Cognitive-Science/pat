@@ -1,5 +1,3 @@
-import { Box, Text } from "@chakra-ui/react";
-
 interface ChatMessageProps {
   sender: string;
   message: string;
