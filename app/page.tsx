@@ -1,34 +1,33 @@
+'use client';
+
 import { useState, useRef } from "react";
-import ChatMessage from "../components/chatmessage";
-import getPatMessage from "../lib/getPatMessage";
+import Dialog from "./components/dialog";
+import ChatMessage from "./components/chatmessage";
+//import getPatMessage from "../lib/getPatMessage";
 
 interface Message {
-  sender: string;
   message: string;
-  bg: string;
 }
 
-async function getPatResponse(messageText: string):Promise<Message> {
-  const message = await getPatMessage(messageText);
+async function getPatResponse(messageText: string): Promise<Message> {
+  //const message = await getPatMessage(messageText);
   return {
-    sender: "Pat",
-    message,
-    bg: "blue.500",
+    message: "testing",
   };
 }
+
+const startingMessage = "Hi there!";
 
 export default function Chat() {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [messages, setMessages] = useState<Message[]>([
-    { sender: "Pat", message: "Hi there!", bg: "blue.500" }
+    { message: "Hi there!" }
   ]);
 
   const [newMessage, setNewMessage] = useState<Message>({
-    sender: "You",
     message: "",
-    bg: "gray.400",
   });
 
   const [isSending, setIsSending] = useState<boolean>(false);
@@ -55,33 +54,25 @@ export default function Chat() {
   };
 
   return (
-    <Flex
-      direction="column"
-      height="100vh"
-      width="100vw"
-      maxW="960px"
-      bg="gray.100"
-      p={4}
-      margin="auto"
-    >
-      <Box flex={1} overflowY="scroll">
+    <div className="flex flex-col h-screen w-screen max-w-4xl bg-gray-100 p-4 mx-auto">
+      <div className="flex-1 overflow-y-scroll">
+        <div className={`bg-blue-500 text-white p-2 rounded-md mb-2`}>
+          <p className="text-sm">Pat</p>
+          <p className="text-md">{startingMessage}</p>
+        </div>
         {messages.map((message, index) => (
-          <ChatMessage
+          /* @ts-expect-error Async Server Component */
+          <Dialog
             key={index}
-            sender={message.sender}
             message={message.message}
-            bg={message.bg}
           />
         ))}
-        {isSending && (
-          <Spinner></Spinner>
-        )}
-      </Box>
-      <Flex>
-        <Input
+      </div>
+      <div className="flex">
+        <input
+          className="flex-1 mr-2 px-2 py-1 rounded-md border border-gray-300"
+          type="text"
           placeholder="Type a message..."
-          flex={1}
-          mr={2}
           value={newMessage.message}
           onChange={handleInputChange}
           disabled={isSending}
@@ -92,14 +83,14 @@ export default function Chat() {
             }
           }}
         />
-        <Button
-          colorScheme="blue"
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
           onClick={handleSendClick}
           disabled={isSending}
         >
           {isSending ? "Sending..." : "Send"}
-        </Button>
-      </Flex>
-    </Flex>
+        </button>
+      </div>
+    </div>
   );
 }
