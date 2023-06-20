@@ -1,4 +1,5 @@
 import './global.css';
+import './print.css';
 
 export default function RootLayout({
   children,

@@ -27,7 +27,11 @@ async function getPatResponse(messageText: string): Promise<Message> {
 
 const startingMessage = "Hi there!";
 
-export default function Chat() {
+function handlePrint() {
+  window.print();
+}
+
+export default function Page() {
 
   const inputRef = useRef<HTMLInputElement>(null);
 
@@ -65,6 +69,10 @@ export default function Chat() {
 
   return (
     <div className="flex flex-col h-screen w-screen max-w-4xl bg-gray-100 p-4 mx-auto">
+      <h1 className="text-2xl font-bold mb-4">Chat with Pat</h1>
+      <button id="print-button" className="px-4 py-2 bg-gray-500 text-white rounded-md ml-2" onClick={handlePrint}>
+        Print
+      </button>
       <div className="flex-1 overflow-y-scroll">
         {messages.map((message, index) => (
           <ChatMessage
@@ -74,7 +82,7 @@ export default function Chat() {
           />
         ))}
       </div>
-      <div className="flex">
+      <div id="chat-input" className="flex">
         <input
           className="flex-1 mr-2 px-2 py-1 rounded-md border border-gray-300"
           type="text"
