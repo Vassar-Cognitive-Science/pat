@@ -1,22 +1,21 @@
-import { chat } from "../../lib/chat"
+import getResponse from "../../lib/chat";
 import { HumanChatMessage, SystemChatMessage, BaseChatMessage } from "langchain/schema";
 
-async function getPatMessage(message: string):Promise<string>{
-    const response = await chat.call([
-        new HumanChatMessage(message)
-    ]);
+// async function getPatMessage(message: string):Promise<string>{
+//     const response = await chat.call([
+//         new HumanChatMessage(message)
+//     ]);
 
-    return response.text;
-}
+//     return response.text;
+// }
 
 interface PatMessageProps {
   userMessage: string;
 }
 
-
 export default async function PatMessage({ userMessage }: PatMessageProps) {
 
-  const message = await getPatMessage(userMessage);
+  const message = await getResponse(userMessage);
 
   const bg = "bg-blue-500";
   return (
