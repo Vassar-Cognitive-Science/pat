@@ -10,9 +10,17 @@ interface Message {
 }
 
 async function getPatResponse(messageText: string): Promise<Message> {
-  //const message = await getPatMessage(messageText);
+  const result = await fetch("/api", {
+    method: "POST",
+    body: JSON.stringify({ message: messageText }),
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+  const json = await result.json();
+  console.log(json);
   return {
-    message: "testing",
+    message: json,
     sender: "Pat",
   };
 }
