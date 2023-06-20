@@ -1,12 +1,14 @@
 interface ChatMessageProps {
   message: string;
+  sender: "You" | "Pat";
 }
 
-export default function ChatMessage({ message }: ChatMessageProps) {
-  const bg = "bg-green-500";
+export default function ChatMessage({ message, sender }: ChatMessageProps) {
+  const bg = sender === "You" ? "bg-green-500" : "bg-blue-500";
+  const textColor = "text-white" ;
   return (
-    <div className={`${bg} text-white p-2 rounded-md mb-2`}>
-      <p className="text-sm">You</p>
+    <div className={`${bg} ${textColor} p-2 rounded-md mb-2`}>
+      <p className="text-sm">{sender}</p>
       <p className="text-md">{message}</p>
     </div>
   );

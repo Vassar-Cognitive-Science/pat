@@ -1,18 +1,19 @@
 'use client';
 
 import { useState, useRef } from "react";
-import Dialog from "./components/dialog";
 import ChatMessage from "./components/chatmessage";
 //import getPatMessage from "../lib/getPatMessage";
 
 interface Message {
   message: string;
+  sender: "You" | "Pat";
 }
 
 async function getPatResponse(messageText: string): Promise<Message> {
   //const message = await getPatMessage(messageText);
   return {
     message: "testing",
+    sender: "Pat",
   };
 }
 
@@ -23,11 +24,12 @@ export default function Chat() {
   const inputRef = useRef<HTMLInputElement>(null);
 
   const [messages, setMessages] = useState<Message[]>([
-    { message: "Hi there!" }
+    { message: "Hi there!", sender: "Pat" }
   ]);
 
   const [newMessage, setNewMessage] = useState<Message>({
     message: "",
+    sender: "You",
   });
 
   const [isSending, setIsSending] = useState<boolean>(false);
@@ -56,14 +58,10 @@ export default function Chat() {
   return (
     <div className="flex flex-col h-screen w-screen max-w-4xl bg-gray-100 p-4 mx-auto">
       <div className="flex-1 overflow-y-scroll">
-        <div className={`bg-blue-500 text-white p-2 rounded-md mb-2`}>
-          <p className="text-sm">Pat</p>
-          <p className="text-md">{startingMessage}</p>
-        </div>
         {messages.map((message, index) => (
-          /* @ts-expect-error Async Server Component */
-          <Dialog
+          <ChatMessage
             key={index}
+            sender={message.sender}
             message={message.message}
           />
         ))}
