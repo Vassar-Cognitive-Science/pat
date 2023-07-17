@@ -12,8 +12,10 @@
     "@types/node": "20.2.5",
     "@types/react": "18.2.7",
     "@types/react-dom": "18.2.4",
+    "faiss-node": "^0.2.2",
     "langchain": "^0.0.88",
     "next": "13.4.4",
+    "pickleparser": "^0.1.0",
     "react": "18.2.0",
     "react-dom": "18.2.0",
     "typescript": "5.0.4"
