@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 import { FaissStore } from "langchain/vectorstores/faiss";
 import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { HumanChatMessage, AIChatMessage } from "langchain/schema";
-import { chat } from "./model-config";
+import { sendMessage } from "../model-config";
 
 const directory = "faiss-index";
 
@@ -21,13 +21,9 @@ export async function POST(request: NextRequest): Promise<NextResponse> {
   // await sleep(1000);
   // const response = await fetch('https://jsonplaceholder.typicode.com/posts/1');
   // const json = await response.json();
-  const response = await chat.call({
-    input: humanMessage,
-    excerpts: "",
-  });
+  const response = await sendMessage(humanMessage);
 
-  console.log({response})
+  console.log(response)
 
-  const text = response.response;
-  return NextResponse.json(text);
+  return NextResponse.json(response);
 }

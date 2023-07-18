@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import ChatMessage from "./components/chatmessage";
 //import getPatMessage from "../lib/getPatMessage";
 
@@ -10,7 +10,7 @@ interface Message {
 }
 
 async function getPatResponse(messageText: string): Promise<Message> {
-  const result = await fetch("/api", {
+  const result = await fetch("/api/message", {
     method: "POST",
     body: JSON.stringify({ message: messageText }),
     headers: {
@@ -34,6 +34,8 @@ function handlePrint() {
 export default function Page() {
 
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
   const [messages, setMessages] = useState<Message[]>([
     { message: "Hi there!", sender: "Pat" }
@@ -67,6 +69,21 @@ export default function Page() {
     inputRef.current?.focus()
   };
 
+  useEffect(() => {
+    const fetchData = async () => {
+      const result = await fetch("/api/setup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
+      const json = await result.json();
+      console.log(json);
+      setIsLoaded(true);
+    };
+    fetchData();
+  }, []);
+
   return (
     <div className="flex flex-col h-screen w-screen max-w-4xl bg-gray-100 p-4 mx-auto">
       <h1 className="text-2xl font-bold mb-4">Chat with Pat</h1>
@@ -74,7 +91,8 @@ export default function Page() {
         Print
       </button>
       <div className="flex-1 overflow-y-scroll">
-        {messages.map((message, index) => (
+        {!isLoaded && <p>Loading...</p>}
+        {isLoaded && messages.map((message, index) => (
           <ChatMessage
             key={index}
             sender={message.sender}
