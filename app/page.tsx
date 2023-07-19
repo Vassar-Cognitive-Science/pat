@@ -2,7 +2,7 @@
 
 import { useState, useRef, useEffect } from "react";
 import ChatMessage from "./components/chatmessage";
-//import getPatMessage from "../lib/getPatMessage";
+import '@fortawesome/fontawesome-free/css/all.css';
 
 interface Message {
   message: string;
@@ -86,10 +86,16 @@ export default function Page() {
 
   return (
     <div className="flex flex-col h-screen w-screen max-w-4xl bg-gray-100 p-4 mx-auto">
-      <h1 className="text-2xl font-bold mb-4">Chat with Pat</h1>
-      <button id="print-button" className="px-4 py-2 bg-gray-500 text-white rounded-md ml-2" onClick={handlePrint}>
-        Print
-      </button>
+      <div className="flex justify-between items-center mb-4">
+        <div></div>
+        <div className="text-center">
+          <h1 className="text-2xl font-bold">Pat</h1>
+          <h2 className="text-md font-light">Philosophical Artificial Thinker</h2>
+        </div>
+        <button id="print-button" className="flex items-center justify-center w-10 h-10 bg-gray-500 text-white rounded-full" onClick={handlePrint}>
+          <i className="fas fa-print"></i>
+        </button>
+      </div>
       <div className="flex-1 overflow-y-scroll">
         {!isLoaded && <p>Loading...</p>}
         {isLoaded && messages.map((message, index) => (
