@@ -6,10 +6,13 @@ interface ChatMessageProps {
 export default function ChatMessage({ message, sender }: ChatMessageProps) {
   const bg = sender === "You" ? "bg-green-500" : "bg-blue-500";
   const textColor = "text-white" ;
+  const paragraphs = message.split("\n");
   return (
     <div className={`${bg} ${textColor} p-2 rounded-md mb-2`}>
       <p className="text-sm">{sender}</p>
-      <p className="text-md">{message}</p>
+      {paragraphs.map((paragraph, index) => (
+        <p key={index} className="text-md mb-2">{paragraph}</p>
+      ))}
     </div>
   );
 }
