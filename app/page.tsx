@@ -125,8 +125,8 @@ export default function Page() {
         onClick={handleSendClick}
         disabled={isSending}
       >
-    {isSending ? "Sending..." : "Send"}
-  </button>
+        {isSending ? <i className="fas fa-spinner fa-spin"></i> : <i className="fas fa-paper-plane"></i>}
+      </button>
 </div>
     </div>
   );
