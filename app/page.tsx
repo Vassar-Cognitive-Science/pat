@@ -33,7 +33,7 @@ function handlePrint() {
 
 export default function Page() {
 
-  const inputRef = useRef<HTMLInputElement>(null);
+  const inputRef = useRef<HTMLTextAreaElement>(null);
 
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
@@ -48,7 +48,7 @@ export default function Page() {
 
   const [isSending, setIsSending] = useState<boolean>(false);
 
-  const handleInputChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
     setNewMessage({
       ...newMessage,
       message: event.target.value,
@@ -107,28 +107,27 @@ export default function Page() {
         ))}
       </div>
       <div id="chat-input" className="flex">
-        <input
-          className="flex-1 mr-2 px-2 py-1 rounded-md border border-gray-300"
-          type="text"
-          placeholder="Type a message..."
-          value={newMessage.message}
-          onChange={handleInputChange}
-          disabled={isSending}
-          ref={inputRef}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              handleSendClick();
-            }
-          }}
-        />
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={handleSendClick}
-          disabled={isSending}
-        >
-          {isSending ? "Sending..." : "Send"}
-        </button>
-      </div>
+      <textarea
+        className="flex-1 mr-2 px-2 py-1 rounded-md border border-gray-300 resize-y overflow-y-auto"
+        placeholder="Type a message..."
+        value={newMessage.message}
+        onChange={handleInputChange}
+        disabled={isSending}
+        ref={inputRef}
+        onKeyDown={(event) => {
+          if (event.key === "Enter") {
+            handleSendClick();
+          }
+        }}
+      />
+      <button
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        onClick={handleSendClick}
+        disabled={isSending}
+      >
+    {isSending ? "Sending..." : "Send"}
+  </button>
+</div>
     </div>
   );
 }
