@@ -1,5 +1,4 @@
 import { ChatOpenAI } from "langchain/chat_models/openai";
-import { HumanChatMessage, SystemChatMessage } from "langchain/schema";
 import { ConversationChain } from "langchain/chains";
 import { BufferMemory } from "langchain/memory";
 import {
@@ -8,8 +7,12 @@ import {
   ChatPromptTemplate,
   MessagesPlaceholder,
 } from "langchain/prompts";
-import { FaissStore } from "langchain/vectorstores/faiss";
-import { OpenAIEmbeddings } from "langchain/embeddings/openai";``
+import { OpenAIEmbeddings } from "langchain/embeddings/openai";
+import { SupabaseVectorStore } from "langchain/vectorstores/supabase";
+import { createClient } from "@supabase/supabase-js";
+
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+const supabaseUrl = process.env.SUPABASE_URL
 
 const model = new ChatOpenAI({
   modelName: "gpt-3.5-turbo",
@@ -28,8 +31,13 @@ const systemMessage = `
     
     {excerpts}`;
 
-const embeddingsDirectory = "faiss-index";
-let faissStore: FaissStore | undefined = undefined;
+const client = createClient(supabaseUrl, supabaseKey);
+const embeddings = new OpenAIEmbeddings();
+
+let vectorStore: SupabaseVectorStore = new SupabaseVectorStore(embeddings, {
+  client: client,
+  tableName: "documents"
+});
 
 const chatPrompt = ChatPromptTemplate.fromPromptMessages([
   SystemMessagePromptTemplate.fromTemplate(systemMessage),
@@ -44,13 +52,12 @@ const chat = new ConversationChain({
 });
 
 const sendMessage = async(message: string) => {
-  console.log("called sendMessage")
 
-  if(!faissStore) {
+  if(!vectorStore) {
     return "Sorry, I'm not ready yet. Please wait a few seconds and try again.";
   }
 
-  const relevantDocs = await faissStore.similaritySearch(message, 3);
+  const relevantDocs = await vectorStore.similaritySearch(message, 3);
   const excerpts = relevantDocs.map((doc) => doc.pageContent).join("\n\n");
 
   const response = await chat.call({
@@ -63,7 +70,6 @@ const sendMessage = async(message: string) => {
 
 const setupEmbeddings = async () => {
   try {  
-    faissStore = await FaissStore.loadFromPython(embeddingsDirectory, new OpenAIEmbeddings());
     return true;
   } catch(e) {
     console.log(e)
