@@ -11,8 +11,8 @@ import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { SupabaseVectorStore } from "langchain/vectorstores/supabase";
 import { createClient } from "@supabase/supabase-js";
 
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-const supabaseUrl = process.env.SUPABASE_URL
+const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY as string
+const supabaseUrl = process.env.SUPABASE_URL as string
 
 const model = new ChatOpenAI({
   modelName: "gpt-3.5-turbo",
