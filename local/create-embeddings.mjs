@@ -49,7 +49,7 @@ const splitter = new RecursiveCharacterTextSplitter({
 
 const docOutput = await splitter.splitDocuments(docs);
 
-const docOutput_test = docOutput.slice(0, 10);
+//const docOutput_test = docOutput.slice(0, 10);
 
 // Add each document to the database
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
@@ -62,7 +62,7 @@ const vectorStore = new SupabaseVectorStore(embeddings, {
   tableName: "documents"
 });
 
-vectorStore.addDocuments(docOutput_test);
+vectorStore.addDocuments(docOutput);
 
 
   
