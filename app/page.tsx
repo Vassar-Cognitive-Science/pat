@@ -144,7 +144,7 @@ export default function Page() {
                 message={message.message}
               />
             ))}
-            {isSending && <ChatMessage key={"sending"} sender={"Pat"} message={"Thinking..."} />}
+            {isSending && <ChatMessage key={"sending"} sender={"Pat"} message={""} loading={true} />}
         </div>
         <div id="chat-input" className="flex">
           <textarea
