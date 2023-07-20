@@ -37,18 +37,7 @@ export default function Page() {
 
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
-  const [messages, setMessages] = useState<Message[]>(() => {
-    const storedMessages = localStorage.getItem("messages");
-    if (storedMessages) {
-      return JSON.parse(storedMessages);
-    }
-    return [
-      {
-        message: startingMessage,
-        sender: "Pat",
-      },
-    ];
-  });
+  const [messages, setMessages] = useState<Message[]>([]);
 
   const [newMessage, setNewMessage] = useState<Message>({
     message: "",
@@ -84,7 +73,9 @@ export default function Page() {
   };
 
   useEffect(() => {
-    localStorage.setItem("messages", JSON.stringify(messages));
+    if(messages.length > 1) {
+      localStorage.setItem("messages", JSON.stringify(messages));
+    }
   }, [messages]);
 
   useEffect(() => {
@@ -100,6 +91,18 @@ export default function Page() {
       setIsLoaded(true);
     };
     fetchData();
+    let loadedMessages = [];
+    const storedMessages = localStorage.getItem("messages");
+    console.log(storedMessages);
+    if (storedMessages) {
+      loadedMessages = JSON.parse(storedMessages);
+      if(loadedMessages.length == 0) {
+        loadedMessages = [{ message: startingMessage, sender: "Pat" }];
+      }
+    } else {
+      loadedMessages = [{ message: startingMessage, sender: "Pat" }];
+    } 
+    setMessages(loadedMessages);
   }, []);
 
   return (
