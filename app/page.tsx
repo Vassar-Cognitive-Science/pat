@@ -3,6 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import ChatMessage from "./components/chatmessage";
 import "@fortawesome/fontawesome-free/css/all.css";
+import "./page.css";
 
 interface Message {
   message: string;
@@ -73,7 +74,7 @@ export default function Page() {
   };
 
   useEffect(() => {
-    if(messages.length > 1) {
+    if (messages.length > 1) {
       localStorage.setItem("messages", JSON.stringify(messages));
     }
   }, [messages]);
@@ -96,25 +97,24 @@ export default function Page() {
     console.log(storedMessages);
     if (storedMessages) {
       loadedMessages = JSON.parse(storedMessages);
-      if(loadedMessages.length == 0) {
+      if (loadedMessages.length == 0) {
         loadedMessages = [{ message: startingMessage, sender: "Pat" }];
       }
     } else {
       loadedMessages = [{ message: startingMessage, sender: "Pat" }];
-    } 
+    }
     setMessages(loadedMessages);
   }, []);
 
   return (
-    <div className="flex flex-col h-screen w-screen mx-auto">
-      <div className="bg-gray-200 p-4">
+    <div className="flex flex-col h-screen w-screen mx-auto main">
+      <div className="bg-transparent p-4">
         <div className="grid grid-cols-6 justify-between items-center mb-4">
           <div className="col-span-1"></div>
           <div className="col-span-4 text-center">
-            <h1 className="text-2xl font-bold">Pat</h1>
-            <h2 className="text-md font-light">
-              Philosophical Artificial Thinker
-            </h2>
+            <h1 className="text-4xl font-bold text-pat-highlight font-heading">
+              Pat
+            </h1>
           </div>
           <div className="col-span-1 flex justify-self-end">
             <button
@@ -133,8 +133,13 @@ export default function Page() {
           </div>
         </div>
       </div>
-      <div className="w-screen max-w-3xl mx-auto flex-1 flex flex-col justify-end py-4">
-        <div className="flex-1 overflow-y-auto">
+      <div>
+        <h2 className="text-md text-pat-light">
+          Philosophical Artificial Thinker
+        </h2>
+      </div>
+      <div className="w-screen overflow-y-auto py-4">
+        <div className="max-w-3xl mx-auto px-4">
           {!isLoaded && <p>Loading...</p>}
           {isLoaded &&
             messages.map((message, index) => (
@@ -144,33 +149,42 @@ export default function Page() {
                 message={message.message}
               />
             ))}
-            {isSending && <ChatMessage key={"sending"} sender={"Pat"} message={""} loading={true} />}
+          {isSending && (
+            <ChatMessage
+              key={"sending"}
+              sender={"Pat"}
+              message={""}
+              loading={true}
+            />
+          )}
         </div>
-        <div id="chat-input" className="flex">
-          <textarea
-            className="flex-1 mr-2 px-2 py-1 rounded-md border border-gray-300 resize-y overflow-y-auto"
-            placeholder="Type a message..."
-            value={newMessage.message}
-            onChange={handleInputChange}
-            disabled={isSending}
-            ref={inputRef}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                handleSendClick();
-              }
-            }}
-          />
-          <button
-            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-            onClick={handleSendClick}
-            disabled={isSending}
-          >
-            {isSending ? (
-              <i className="fas fa-spinner fa-spin"></i>
-            ) : (
-              <i className="fas fa-paper-plane"></i>
-            )}
-          </button>
+      </div>
+      <div id="chat-input" className="flex custom-input">
+        <div className="mx-auto">
+        <textarea
+          className="max-w-3xl my-4 flex-1 mr-2 px-2 py-1 rounded-md border border-gray-300 resize-y overflow-y-auto"
+          placeholder="Type a message..."
+          value={newMessage.message}
+          onChange={handleInputChange}
+          disabled={isSending}
+          ref={inputRef}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              handleSendClick();
+            }
+          }}
+        />
+        <button
+          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          onClick={handleSendClick}
+          disabled={isSending}
+        >
+          {isSending ? (
+            <i className="fas fa-spinner fa-spin"></i>
+          ) : (
+            <i className="fas fa-paper-plane"></i>
+          )}
+        </button>
         </div>
       </div>
     </div>

@@ -1,0 +1,11 @@
+@import url('https://fonts.googleapis.com/css2?family=Brygada+1918:wght@600&family=Gowun+Dodum&family=Lekton&display=swap');
+
+div.main {
+    background: radial-gradient(131.03% 102.47% at 22.64% 79.22%, #1E1447 0%, #171425 44.63%, #0F1418 100%);
+}
+
+div.custom-input {
+    border-top: 1px solid var(--pat-light, #E1E1ED);
+    background: rgba(21, 20, 34, 0.80);
+    box-shadow: 0px -4px 8px 0px rgba(225, 225, 237, 0.20);
+}
