@@ -25,7 +25,8 @@ async function getPatResponse(messageText: string): Promise<Message> {
   };
 }
 
-const startingMessage = "Hi there!";
+const startingMessage =
+  "Imagine you're having a coffee shop discussion with a fellow student who firmly believes that all emotions, from fear and happiness to compassion and anger, can be entirely explained by neural activity in the brain. Your friend argues that the richness of our mental experiences can be reduced to the firing of neurons. Now, I'm curious to know your take on this matter. Do you think the mind's complexities can be fully understood through neuroscience and a reductionist lens?";
 
 function handlePrint() {
   window.print();
@@ -36,15 +37,17 @@ export default function Page() {
 
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
-  const [messages, setMessages] = useState<Message[]>(()=>{
+  const [messages, setMessages] = useState<Message[]>(() => {
     const storedMessages = localStorage.getItem("messages");
     if (storedMessages) {
       return JSON.parse(storedMessages);
     }
-    return [{
-      message: startingMessage,
-      sender: "Pat",
-    }];
+    return [
+      {
+        message: startingMessage,
+        sender: "Pat",
+      },
+    ];
   });
 
   const [newMessage, setNewMessage] = useState<Message>({
@@ -75,9 +78,14 @@ export default function Page() {
     inputRef.current?.focus();
   };
 
-  useEffect(()=>{
+  const handleClearClick = () => {
+    localStorage.clear();
+    setMessages([{ message: startingMessage, sender: "Pat" }]);
+  };
+
+  useEffect(() => {
     localStorage.setItem("messages", JSON.stringify(messages));
-  }, [messages])
+  }, [messages]);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -105,53 +113,61 @@ export default function Page() {
               Philosophical Artificial Thinker
             </h2>
           </div>
-          <button
-            id="print-button"
-            className="flex items-center justify-center w-10 h-10 bg-gray-500 text-white rounded-full"
-            onClick={handlePrint}
-          >
-            <i className="fas fa-print"></i>
-          </button>
+          <div className="flex">
+            <button
+              id="print-button"
+              className="flex mr-4 items-center justify-center w-10 h-10 bg-gray-500 text-white rounded-full"
+              onClick={handlePrint}
+            >
+              <i className="fas fa-print"></i>
+            </button>
+            <button
+              className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
+              onClick={handleClearClick}
+            >
+              <i className="fas fa-trash-alt"></i>
+            </button>
+          </div>
         </div>
       </div>
       <div className="w-screen max-w-3xl mx-auto flex-1 flex flex-col justify-end py-4">
-      <div className="flex-1 overflow-y-auto">
-        {!isLoaded && <p>Loading...</p>}
-        {isLoaded &&
-          messages.map((message, index) => (
-            <ChatMessage
-              key={index}
-              sender={message.sender}
-              message={message.message}
-            />
-          ))}
-      </div>
-      <div id="chat-input" className="flex">
-        <textarea
-          className="flex-1 mr-2 px-2 py-1 rounded-md border border-gray-300 resize-y overflow-y-auto"
-          placeholder="Type a message..."
-          value={newMessage.message}
-          onChange={handleInputChange}
-          disabled={isSending}
-          ref={inputRef}
-          onKeyDown={(event) => {
-            if (event.key === "Enter") {
-              handleSendClick();
-            }
-          }}
-        />
-        <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-          onClick={handleSendClick}
-          disabled={isSending}
-        >
-          {isSending ? (
-            <i className="fas fa-spinner fa-spin"></i>
-          ) : (
-            <i className="fas fa-paper-plane"></i>
-          )}
-        </button>
-      </div>
+        <div className="flex-1 overflow-y-auto">
+          {!isLoaded && <p>Loading...</p>}
+          {isLoaded &&
+            messages.map((message, index) => (
+              <ChatMessage
+                key={index}
+                sender={message.sender}
+                message={message.message}
+              />
+            ))}
+        </div>
+        <div id="chat-input" className="flex">
+          <textarea
+            className="flex-1 mr-2 px-2 py-1 rounded-md border border-gray-300 resize-y overflow-y-auto"
+            placeholder="Type a message..."
+            value={newMessage.message}
+            onChange={handleInputChange}
+            disabled={isSending}
+            ref={inputRef}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                handleSendClick();
+              }
+            }}
+          />
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            onClick={handleSendClick}
+            disabled={isSending}
+          >
+            {isSending ? (
+              <i className="fas fa-spinner fa-spin"></i>
+            ) : (
+              <i className="fas fa-paper-plane"></i>
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );
