@@ -8,8 +8,8 @@ export default function ChatMessage({ message, sender }: ChatMessageProps) {
   const textColor = "text-white" ;
   const paragraphs = message.split("\n");
   return (
-    <div className={`${bg} ${textColor} p-2 rounded-md mb-2`}>
-      <p className="text-sm">{sender}</p>
+    <div className={`${bg} ${textColor} p-3 rounded-md mb-2`}>
+      <p className="text-sm font-roboto">{sender}</p>
       {paragraphs.map((paragraph, index) => (
         <p key={index} className="text-md mb-2">{paragraph}</p>
       ))}

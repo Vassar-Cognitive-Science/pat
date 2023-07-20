@@ -108,18 +108,18 @@ export default function Page() {
   return (
     <div className="flex flex-col h-screen w-screen mx-auto">
       <div className="bg-gray-200 p-4">
-        <div className="flex justify-between items-center mb-4">
-          <div></div>
-          <div className="text-center">
+        <div className="grid grid-cols-6 justify-between items-center mb-4">
+          <div className="col-span-1"></div>
+          <div className="col-span-4 text-center">
             <h1 className="text-2xl font-bold">Pat</h1>
             <h2 className="text-md font-light">
               Philosophical Artificial Thinker
             </h2>
           </div>
-          <div className="flex">
+          <div className="col-span-1 flex justify-self-end">
             <button
               id="print-button"
-              className="flex mr-4 items-center justify-center w-10 h-10 bg-gray-500 text-white rounded-full"
+              className="flex mr-4 items-center justify-center w-10 h-10 bg-gray-500 hover:bg-gray-700 text-white rounded-full"
               onClick={handlePrint}
             >
               <i className="fas fa-print"></i>
@@ -144,6 +144,7 @@ export default function Page() {
                 message={message.message}
               />
             ))}
+            {isSending && <ChatMessage key={"sending"} sender={"Pat"} message={"Thinking..."} />}
         </div>
         <div id="chat-input" className="flex">
           <textarea
