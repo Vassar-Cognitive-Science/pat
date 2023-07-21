@@ -20,7 +20,7 @@ export default function ChatMessage({
   const paragraphs = message.split("\n");
   return (
     <div className={`flex flex-row ${align}`}>
-      <div className="flex flex-row w-5/6">
+      <div className={`flex flex-row w-11/12 ${align}`}>
         {sender === "Pat" && (
           <div className="mr-2">
             <svg
@@ -122,7 +122,7 @@ export default function ChatMessage({
           </div>
         )}
         <div
-          className={`${bg} ${textColor} ${border} p-3 rounded-md mb-2 flex-1`}
+          className={`${bg} ${textColor} ${border} p-3 rounded-md mb-2`}
         >
           {loading && (
             <div
