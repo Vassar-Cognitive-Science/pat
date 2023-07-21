@@ -189,7 +189,7 @@ export default function Page() {
         <hr className="border-color-pat-light flex-1" />
       </div>
       <div id="chat-messages" className="w-screen overflow-y-auto py-4 flex-1">
-        <div className="max-w-[1200px] mx-auto px-4">
+        <div className="max-w-[960px] mx-auto px-4">
           {!isLoaded && <p>Loading...</p>}
           {isLoaded &&
             messages.map((message, index) => (
@@ -210,9 +210,9 @@ export default function Page() {
         </div>
       </div>
       <div id="chat-input" className="flex">
-        <div className="flex mx-auto w-screen max-w-[1200px] bg-[rgba(225,225,237,0.2)] my-4 rounded-md">
+        <div className="flex mx-auto w-screen max-w-[960px] bg-[rgba(225,225,237,0.2)] my-4 rounded-md">
           <TextareaAutosize
-            className="bg-transparent flex-1 mr-2 px-2 py-1 resize-none overflow-y-auto text-pat-light font-body"
+            className="bg-transparent flex-1 mr-2 px-2 py-3 resize-none overflow-y-auto text-pat-light font-body"
             placeholder="Type a message..."
             value={newMessage.message}
             onChange={handleInputChange}
