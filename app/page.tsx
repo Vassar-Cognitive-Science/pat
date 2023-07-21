@@ -133,10 +133,12 @@ export default function Page() {
           </div>
         </div>
       </div>
-      <div>
-        <h2 className="text-md text-pat-light">
-          Philosophical Artificial Thinker
+      <div className="flex items-center">
+        <hr className="border-color-pat-light flex-1" />
+        <h2 className="shadow-[0px_2px_8px_0px_rgba(225,225,237,0.40)] bg-pat-bg-plum px-3 py-2 font-tag justify-center items-center flex text-md text-pat-light border border-color-pat-light rounded-full">
+          philosophical artificial thinker
         </h2>
+        <hr className="border-color-pat-light flex-1" />
       </div>
       <div className="w-screen overflow-y-auto py-4">
         <div className="max-w-3xl mx-auto px-4">
@@ -159,10 +161,10 @@ export default function Page() {
           )}
         </div>
       </div>
-      <div id="chat-input" className="flex custom-input">
-        <div className="mx-auto">
+      <div id="chat-input" className="flex">
+        <div className="mx-auto w-screen max-w-3xl bg-[rgba(225,225,237,0.2)] my-4 rounded-md">
         <textarea
-          className="max-w-3xl my-4 flex-1 mr-2 px-2 py-1 rounded-md border border-gray-300 resize-y overflow-y-auto"
+          className="bg-transparent  flex-1 mr-2 px-2 py-1 resize-y overflow-y-auto"
           placeholder="Type a message..."
           value={newMessage.message}
           onChange={handleInputChange}
@@ -175,7 +177,7 @@ export default function Page() {
           }}
         />
         <button
-          className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+          className="text-white font-bold py-2 px-4 rounded"
           onClick={handleSendClick}
           disabled={isSending}
         >
