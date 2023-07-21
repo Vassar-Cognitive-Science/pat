@@ -210,7 +210,7 @@ export default function Page() {
         </div>
       </div>
       <div id="chat-input" className="flex">
-        <div className="flex mx-auto w-screen max-w-[960px] bg-[rgba(225,225,237,0.2)] my-4 rounded-md">
+        <div className="flex mx-auto w-screen max-w-[960px] bg-[rgba(225,225,237,0.2)] my-4 mx-2 rounded-md">
           <TextareaAutosize
             className="bg-transparent flex-1 mr-2 px-2 py-3 resize-none overflow-y-auto text-pat-light font-body"
             placeholder="Type a message..."
