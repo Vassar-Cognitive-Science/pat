@@ -110,11 +110,11 @@ export default function Page() {
   return (
     <div className="flex flex-col h-screen w-screen mx-auto main">
       <div id="header" className="bg-transparent p-4">
-        <div className="grid grid-cols-6 justify-between items-center mb-4">
+        <div className="grid grid-cols-6 justify-between items-center my-2">
           <div className="col-span-1">
             <button
               id="print-button"
-              className="flex mr-4 items-center justify-center w-10 h-10 text-pat-light"
+              className="flex mr-4 items-center justify-center w-10 h-10 text-pat-light hover:text-white"
               onClick={handlePrint}
             >
               <svg
