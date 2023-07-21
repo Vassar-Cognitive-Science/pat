@@ -109,7 +109,7 @@ export default function Page() {
 
   return (
     <div className="flex flex-col h-screen w-screen mx-auto main">
-      <div className="bg-transparent p-4">
+      <div id="header" className="bg-transparent p-4">
         <div className="grid grid-cols-6 justify-between items-center mb-4">
           <div className="col-span-1">
             <button
@@ -181,14 +181,14 @@ export default function Page() {
           </div>
         </div>
       </div>
-      <div className="flex items-center">
+      <div id="tagline" className="flex items-center">
         <hr className="border-color-pat-light flex-1" />
         <h2 className="shadow-[0px_2px_8px_0px_rgba(225,225,237,0.40)] bg-pat-bg-plum px-3 py-2 font-tag justify-center items-center flex text-md text-pat-light border border-color-pat-light rounded-full">
           philosophical artificial thinker
         </h2>
         <hr className="border-color-pat-light flex-1" />
       </div>
-      <div className="w-screen overflow-y-auto py-4">
+      <div id="chat-messages" className="w-screen overflow-y-auto py-4 flex-1">
         <div className="max-w-3xl mx-auto px-4">
           {!isLoaded && <p>Loading...</p>}
           {isLoaded &&
