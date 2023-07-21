@@ -17,8 +17,8 @@
    width: 8px;
    height: 8px;
    border-radius: 5px;
-   background-color: #ffffff;
-   color: #ffffff;
+   background-color: #FCE5B9;
+   color: #FCE5B9;
    animation: dot-elastic 1s infinite linear;
  }
  .dot-elastic::before, .dot-elastic::after {
@@ -32,8 +32,8 @@
    width: 8px;
    height: 8px;
    border-radius: 5px;
-   background-color: #ffffff;
-   color: #ffffff;
+   background-color: #FCE5B9;
+   color: #FCE5B9;
    animation: dot-elastic-before 1s infinite linear;
  }
  .dot-elastic::after {
@@ -41,8 +41,8 @@
    width: 8px;
    height: 8px;
    border-radius: 5px;
-   background-color: #ffffff;
-   color: #ffffff;
+   background-color: #FCE5B9;
+   color: #FCE5B9;
    animation: dot-elastic-after 1s infinite linear;
  }
  
