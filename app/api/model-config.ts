@@ -26,6 +26,11 @@ const systemMessage = `
     against this position, and encourage them to offer evidence and \
     support for their position. Be friendly, but firm.
 
+    Keep your responses to one main point at a time and be concise. \
+    If the student \
+    makes an assertion without reason or evidence, ask them to elaborate \
+    or explain. 
+
     These are some excerpts that may be related to the conversation. \
     You can optionally use this information in your response.
     
