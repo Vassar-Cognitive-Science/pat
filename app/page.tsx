@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from "react";
 import ChatMessage from "./components/chatmessage";
 import "@fortawesome/fontawesome-free/css/all.css";
 import "./page.css";
+import TextareaAutosize from 'react-textarea-autosize'
 
 interface Message {
   message: string;
@@ -162,19 +163,21 @@ export default function Page() {
         </div>
       </div>
       <div id="chat-input" className="flex">
-        <div className="mx-auto w-screen max-w-3xl bg-[rgba(225,225,237,0.2)] my-4 rounded-md">
-        <textarea
-          className="bg-transparent  flex-1 mr-2 px-2 py-1 resize-y overflow-y-auto"
+        <div className="flex mx-auto w-screen max-w-3xl bg-[rgba(225,225,237,0.2)] my-4 rounded-md">
+        <TextareaAutosize
+          className="bg-transparent flex-1 mr-2 px-2 py-1 resize-none overflow-y-auto text-pat-light font-body"
           placeholder="Type a message..."
           value={newMessage.message}
           onChange={handleInputChange}
           disabled={isSending}
           ref={inputRef}
+          maxRows={10}
           onKeyDown={(event) => {
             if (event.key === "Enter") {
               handleSendClick();
             }
           }}
+          style={{outline: "none"}}
         />
         <button
           className="text-white font-bold py-2 px-4 rounded"
@@ -184,7 +187,9 @@ export default function Page() {
           {isSending ? (
             <i className="fas fa-spinner fa-spin"></i>
           ) : (
-            <i className="fas fa-paper-plane"></i>
+            <svg xmlns="http://www.w3.org/2000/svg" width="15" height="13" viewBox="0 0 15 13" fill="none">
+              <path d="M14.3948 5.59543L14.3898 5.59324L1.04228 0.0570952C0.930018 0.0101059 0.807855 -0.00832272 0.686722 0.00345783C0.56559 0.0152384 0.449267 0.0568607 0.348158 0.124602C0.241333 0.194598 0.153587 0.290055 0.0928133 0.402383C0.0320396 0.51471 0.000145356 0.640385 1.70645e-07 0.768099V4.30874C5.95301e-05 4.48334 0.0610242 4.65244 0.172387 4.78691C0.283749 4.92138 0.438532 5.01278 0.610057 5.04537L7.8898 6.39144C7.91841 6.39686 7.94422 6.4121 7.96279 6.43452C7.98136 6.45694 7.99153 6.48515 7.99153 6.51426C7.99153 6.54338 7.98136 6.57158 7.96279 6.594C7.94422 6.61643 7.91841 6.63166 7.8898 6.63709L0.61037 7.98315C0.438892 8.01566 0.284118 8.10694 0.172706 8.24129C0.0612939 8.37563 0.000218777 8.54462 1.70645e-07 8.71915V12.2604C-8.28297e-05 12.3824 0.0301135 12.5024 0.0878795 12.6098C0.145646 12.7173 0.229174 12.8086 0.330969 12.8758C0.453417 12.9572 0.59712 13.0006 0.744132 13.0008C0.846336 13.0007 0.947491 12.9802 1.04166 12.9405L14.3888 7.43591L14.3948 7.4331C14.5744 7.35589 14.7275 7.22769 14.8351 7.06439C14.9427 6.90108 15 6.70981 15 6.51426C15 6.31871 14.9427 6.12745 14.8351 5.96414C14.7275 5.80083 14.5744 5.67264 14.3948 5.59543Z" fill="#E1E1ED"/>
+            </svg>
           )}
         </button>
         </div>
