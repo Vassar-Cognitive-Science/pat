@@ -1,0 +1,6 @@
+div.modal {
+  box-shadow: 0px 2px 8px rgba(225, 225, 237, 0.4);
+  border-radius: 8px;
+  border: 0.5px #e1e1ed solid;
+  backdrop-filter: blur(2px);
+}

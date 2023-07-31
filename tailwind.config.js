@@ -24,7 +24,8 @@ module.exports = {
       'pat-purple': '#4E38A2',
       'pat-highlight': '#FCE5B9',
       'pat-bg-blog': '#8275B9',
-      'pat-bg-plum': '#2C2A32'
+      'pat-bg-plum': '#2C2A32',
+      'pat-modal': '#201739',
     },
     fontFamily:{
       'heading': ['"Brygada 1918"', 'serif'],
