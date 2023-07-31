@@ -143,7 +143,7 @@ export default function Page() {
       <div
         id="chat-messages"
         ref={chatMessagesRef}
-        className="w-screen overflow-y-auto py-4 flex-1"
+        className="w-screen overflow-y-auto print:overflow-visible py-4 flex-1"
       >
         <div className="max-w-[960px] mx-auto px-4">
           {!isLoaded && <p>Loading...</p>}
