@@ -1,12 +1,18 @@
 @media print {
 
-  /* Hide the chat input and button */
-  #chat-input, #print-button {
+  html, body {
+    color: black;
+  }
+
+  div.main {
+    background-color: white;
+  }
+
+  #header, #tagline, #chat-input, svg {
     display: none;
   }
 
-  /* Increase the font size of the messages */
   .chat-message {
-    font-size: 16px;
+    display: block;
   }
 }

@@ -33,9 +33,9 @@ async function getPatResponse(messageText: string): Promise<Message> {
 const startingMessage =
   "Imagine you're having a coffee shop discussion with a fellow student who firmly believes that all emotions, from fear and happiness to compassion and anger, can be entirely explained by neural activity in the brain. Your friend argues that the richness of our mental experiences can be reduced to the firing of neurons. Now, I'm curious to know your take on this matter. Do you think the mind's complexities can be fully understood through neuroscience and a reductionist lens?";
 
-
 export default function Page() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
+  const chatMessagesRef = useRef<HTMLDivElement>(null);
 
   const [isLoaded, setIsLoaded] = useState<boolean>(false);
 
@@ -74,9 +74,18 @@ export default function Page() {
     setMessages([{ message: startingMessage, sender: "Pat" }]);
   };
 
+  // save messages to local storage
   useEffect(() => {
     if (messages.length > 1) {
       localStorage.setItem("messages", JSON.stringify(messages));
+    }
+  }, [messages]);
+
+  // scroll to bottom whenever new message is added
+  useEffect(() => {
+    const chatMessages = chatMessagesRef.current;
+    if (chatMessages) {
+      chatMessages.scrollTop = chatMessages.scrollHeight;
     }
   }, [messages]);
 
@@ -131,7 +140,11 @@ export default function Page() {
         </h2>
         <hr className="border-color-pat-light flex-1" />
       </div>
-      <div id="chat-messages" className="w-screen overflow-y-auto py-4 flex-1">
+      <div
+        id="chat-messages"
+        ref={chatMessagesRef}
+        className="w-screen overflow-y-auto py-4 flex-1"
+      >
         <div className="max-w-[960px] mx-auto px-4">
           {!isLoaded && <p>Loading...</p>}
           {isLoaded &&

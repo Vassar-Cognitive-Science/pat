@@ -122,7 +122,7 @@ export default function ChatMessage({
           </div>
         )}
         <div
-          className={`${bg} ${textColor} ${border} p-3 rounded-md mb-2`}
+          className={`${bg} ${textColor} ${border} p-3 rounded-md mb-2 chat-message print:text-black print:border-black`}
         >
           {loading && (
             <div
