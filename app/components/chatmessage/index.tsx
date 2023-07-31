@@ -126,8 +126,8 @@ export default function ChatMessage({
         >
           {loading && (
             <div
-              className="dot-elastic mt-3 mb-3"
-              style={{ marginLeft: "15px" }}
+              className="dot-elastic mt-3 mb-3 mx-[20px]"
+              
             ></div>
           )}
           {!loading &&
