@@ -1,6 +1,6 @@
 import { ChatOpenAI } from "langchain/chat_models/openai";
 import { ConversationChain } from "langchain/chains";
-import { BufferMemory } from "langchain/memory";
+import { BufferMemory, ChatMessageHistory } from "langchain/memory";
 import {
   SystemMessagePromptTemplate,
   HumanMessagePromptTemplate,
@@ -50,15 +50,30 @@ const chatPrompt = ChatPromptTemplate.fromPromptMessages([
   HumanMessagePromptTemplate.fromTemplate("{input}"),
 ]);
 
-const chat = new ConversationChain({
-  llm: model,
-  memory: new BufferMemory({ returnMessages: true, memoryKey: "history", inputKey: "input" }),
-  prompt: chatPrompt,
-});
+const sendMessage = async(history:[], message: string) => {
 
-const sendMessage = async(message: string) => {
+  // convert history into a chat history object
+  const history = new ChatMessageHistory();
+  for(const m of history) {
+    if(m.sender == "Pat"){
+      history.addAIResponse(m.message);
+    }
+    history.addMessage(m);
+  }  
 
-  if(!vectorStore) {
+  const chat = new ConversationChain({
+    llm: model,
+    memory: new BufferMemory({ 
+      returnMessages: true, 
+      memoryKey: "history", 
+      inputKey: "input", 
+      chatHistory: history,
+    }),    
+    prompt: chatPrompt,
+    verbose: true,
+  });
+
+  if(!vectorStore || !chat) {
     return "Sorry, I'm not ready yet. Please wait a few seconds and try again.";
   }
 
@@ -70,16 +85,10 @@ const sendMessage = async(message: string) => {
     excerpts: excerpts,
   });
 
+
+  console.log({response})
+
   return response.response;
 }
 
-const setupEmbeddings = async () => {
-  try {  
-    return true;
-  } catch(e) {
-    console.log(e)
-    return false;
-  }
-}
-
-export { chat, setupEmbeddings, sendMessage };
+export { sendMessage };

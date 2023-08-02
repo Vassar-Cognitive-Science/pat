@@ -8,16 +8,17 @@ import "./page.css";
 import TextareaAutosize from "react-textarea-autosize";
 import PrintButton from "./components/printbutton";
 import SendButton from "./components/sendbutton";
+import { BufferMemory, ChatMessageHistory } from "langchain/memory";
 
 interface Message {
   message: string;
   sender: "You" | "Pat";
 }
 
-async function getPatResponse(messageText: string): Promise<Message> {
+async function getPatResponse(messageHistory: Message[], messageText: string): Promise<Message> {
   const result = await fetch("/api/message", {
     method: "POST",
-    body: JSON.stringify({ message: messageText }),
+    body: JSON.stringify({ history: messageHistory, messageText }),
     headers: {
       "Content-Type": "application/json",
     },
@@ -57,15 +58,15 @@ export default function Page() {
 
   const handleSendClick = async () => {
     setIsSending(true);
+    const history = JSON.parse(JSON.stringify(messages)); // bad hack to deep copy
     setMessages([...messages, newMessage]);
     setNewMessage({
       ...newMessage,
       message: "",
     });
-    const response = await getPatResponse(newMessage.message);
+    const response = await getPatResponse(history, newMessage.message);
     setMessages([...messages, newMessage, response]);
     setIsSending(false);
-    console.log(inputRef.current);
     inputRef.current?.focus();
   };
 
@@ -89,31 +90,14 @@ export default function Page() {
     }
   }, [messages]);
 
+  // load messages from local storage
   useEffect(() => {
-    const fetchData = async () => {
-      const result = await fetch("/api/setup", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-      const json = await result.json();
-      console.log(json);
-      setIsLoaded(true);
-    };
-    fetchData();
-    let loadedMessages = [];
     const storedMessages = localStorage.getItem("messages");
-    console.log(storedMessages);
-    if (storedMessages) {
-      loadedMessages = JSON.parse(storedMessages);
-      if (loadedMessages.length == 0) {
-        loadedMessages = [{ message: startingMessage, sender: "Pat" }];
-      }
-    } else {
-      loadedMessages = [{ message: startingMessage, sender: "Pat" }];
-    }
+    const loadedMessages = storedMessages
+      ? JSON.parse(storedMessages)
+      : [{ message: startingMessage, sender: "Pat" }];
     setMessages(loadedMessages);
+    setIsLoaded(true);
   }, []);
 
   return (
