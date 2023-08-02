@@ -18,7 +18,7 @@ interface Message {
 async function getPatResponse(messageHistory: Message[], messageText: string): Promise<Message> {
   const result = await fetch("/api/message", {
     method: "POST",
-    body: JSON.stringify({ history: messageHistory, messageText }),
+    body: JSON.stringify({ history: messageHistory, message: messageText }),
     headers: {
       "Content-Type": "application/json",
     },

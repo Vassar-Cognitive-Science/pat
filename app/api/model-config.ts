@@ -50,15 +50,17 @@ const chatPrompt = ChatPromptTemplate.fromPromptMessages([
   HumanMessagePromptTemplate.fromTemplate("{input}"),
 ]);
 
-const sendMessage = async(history:[], message: string) => {
+const sendMessage = async(history:{message:string;sender:"You"|"Pat"}[], message: string) => {
 
   // convert history into a chat history object
-  const history = new ChatMessageHistory();
+  const chathistory = new ChatMessageHistory();
   for(const m of history) {
     if(m.sender == "Pat"){
-      history.addAIResponse(m.message);
+      chathistory.addAIChatMessage(m.message);
     }
-    history.addMessage(m);
+    if(m.sender == "You"){
+      chathistory.addUserMessage(m.message);
+    }
   }  
 
   const chat = new ConversationChain({
@@ -67,7 +69,7 @@ const sendMessage = async(history:[], message: string) => {
       returnMessages: true, 
       memoryKey: "history", 
       inputKey: "input", 
-      chatHistory: history,
+      chatHistory: chathistory,
     }),    
     prompt: chatPrompt,
     verbose: true,
