@@ -8,71 +8,50 @@ import "./page.css";
 import TextareaAutosize from "react-textarea-autosize";
 import PrintButton from "./components/printbutton";
 import SendButton from "./components/sendbutton";
-import { BufferMemory, ChatMessageHistory } from "langchain/memory";
+import { useChat } from "ai/react";
+import { Message } from "ai";
 
-interface Message {
-  message: string;
-  sender: "You" | "Pat";
-}
+const startingMessage: Message = {
+  id: "initial",
+  content:
+    "Imagine you're having a coffee shop discussion with a fellow student who firmly believes that all emotions, from fear and happiness to compassion and anger, can be entirely explained by neural activity in the brain. Your friend argues that the richness of our mental experiences can be reduced to the firing of neurons. Now, I'm curious to know your take on this matter. Do you think the mind's complexities can be fully understood through neuroscience and a reductionist lens?",
+  role: "assistant",
+};
 
-async function getPatResponse(messageHistory: Message[], messageText: string): Promise<Message> {
-  const result = await fetch("/api/message", {
-    method: "POST",
-    body: JSON.stringify({ history: messageHistory, message: messageText }),
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
-  const json = await result.json();
-  console.log(json);
-  return {
-    message: json,
-    sender: "Pat",
-  };
-}
+// interface Message {
+//   message: string;
+//   sender: "You" | "Pat";
+// }
 
-const startingMessage =
-  "Imagine you're having a coffee shop discussion with a fellow student who firmly believes that all emotions, from fear and happiness to compassion and anger, can be entirely explained by neural activity in the brain. Your friend argues that the richness of our mental experiences can be reduced to the firing of neurons. Now, I'm curious to know your take on this matter. Do you think the mind's complexities can be fully understood through neuroscience and a reductionist lens?";
+// async function getPatResponse(
+//   messageHistory: Message[],
+//   messageText: string
+// ): Promise<Message> {
+//   const result = await fetch("/api/message", {
+//     method: "POST",
+//     body: JSON.stringify({ history: messageHistory, message: messageText }),
+//     headers: {
+//       "Content-Type": "application/json",
+//     },
+//   });
+//   const json = await result.json();
+//   console.log(json);
+//   return {
+//     message: json,
+//     sender: "Pat",
+//   };
+// }
 
 export default function Page() {
+  const { messages, setMessages, input, handleInputChange, handleSubmit, isLoading } =
+    useChat({ api: "api/message" });
+
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
 
-  const [isLoaded, setIsLoaded] = useState<boolean>(false);
-
-  const [messages, setMessages] = useState<Message[]>([]);
-
-  const [newMessage, setNewMessage] = useState<Message>({
-    message: "",
-    sender: "You",
-  });
-
-  const [isSending, setIsSending] = useState<boolean>(false);
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setNewMessage({
-      ...newMessage,
-      message: event.target.value,
-    });
-  };
-
-  const handleSendClick = async () => {
-    setIsSending(true);
-    const history = JSON.parse(JSON.stringify(messages)); // bad hack to deep copy
-    setMessages([...messages, newMessage]);
-    setNewMessage({
-      ...newMessage,
-      message: "",
-    });
-    const response = await getPatResponse(history, newMessage.message);
-    setMessages([...messages, newMessage, response]);
-    setIsSending(false);
-    inputRef.current?.focus();
-  };
-
   const handleClearClick = () => {
     localStorage.clear();
-    setMessages([{ message: startingMessage, sender: "Pat" }]);
+    setMessages([startingMessage]);
   };
 
   // save messages to local storage
@@ -93,11 +72,10 @@ export default function Page() {
   // load messages from local storage
   useEffect(() => {
     const storedMessages = localStorage.getItem("messages");
-    const loadedMessages = storedMessages
+    const loadedMessages: Message[] = storedMessages
       ? JSON.parse(storedMessages)
-      : [{ message: startingMessage, sender: "Pat" }];
+      : [startingMessage];
     setMessages(loadedMessages);
-    setIsLoaded(true);
   }, []);
 
   return (
@@ -130,43 +108,30 @@ export default function Page() {
         className="w-screen overflow-y-auto print:overflow-visible py-4 flex-1"
       >
         <div className="max-w-[960px] mx-auto px-4">
-          {!isLoaded && <p>Loading...</p>}
-          {isLoaded &&
-            messages.map((message, index) => (
-              <ChatMessage
-                key={index}
-                sender={message.sender}
-                message={message.message}
-              />
-            ))}
-          {isSending && (
+          {messages.map((message, index) => (
             <ChatMessage
-              key={"sending"}
-              sender={"Pat"}
-              message={""}
-              loading={true}
+              key={index}
+              sender={message.role === "assistant" ? "Pat" : "You"}
+              message={message.content}
             />
-          )}
+          ))}
         </div>
       </div>
       <div id="chat-input" className="flex mx-2">
         <div className="flex mx-auto w-screen max-w-[960px] bg-[rgba(225,225,237,0.2)] my-4 rounded-md">
-          <TextareaAutosize
-            className="bg-transparent flex-1 mr-2 px-2 py-3 resize-none overflow-y-auto text-pat-light font-body"
-            placeholder="Type a message..."
-            value={newMessage.message}
-            onChange={handleInputChange}
-            disabled={isSending}
-            ref={inputRef}
-            maxRows={10}
-            onKeyDown={(event) => {
-              if (event.key === "Enter") {
-                handleSendClick();
-              }
-            }}
-            style={{ outline: "none" }}
-          />
-          <SendButton handleSendClick={handleSendClick} isSending={isSending} />
+          <form onSubmit={handleSubmit}>
+            <TextareaAutosize
+              className="bg-transparent flex-1 mr-2 px-2 py-3 resize-none overflow-y-auto text-pat-light font-body"
+              placeholder="Type a message..."
+              value={input}
+              onChange={handleInputChange}
+              disabled={isLoading}
+              ref={inputRef}
+              maxRows={10}
+              style={{ outline: "none" }}
+            />
+            <SendButton isSending={isLoading} />
+          </form>
         </div>
       </div>
     </div>
