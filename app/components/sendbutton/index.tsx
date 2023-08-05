@@ -1,17 +1,16 @@
 interface SendButtonProps {
-  handleSendClick: () => void;
   isSending: boolean;
 }
 
 export default function SendButton({
-  handleSendClick,
   isSending,
 }: SendButtonProps) {
   return (
     <button
+      type="submit"
       className="text-white font-bold py-2 px-4 rounded"
-      onClick={handleSendClick}
       disabled={isSending}
+      title={"Send Message (Ctrl+Enter)"}
     >
       {isSending ? (
         <i className="fas fa-spinner fa-spin"></i>
