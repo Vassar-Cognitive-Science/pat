@@ -48,10 +48,18 @@ export default function Page() {
 
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
+  const formRef = useRef<HTMLFormElement>(null);
 
   const handleClearClick = () => {
     localStorage.clear();
     setMessages([startingMessage]);
+  };
+
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (event.ctrlKey && event.key === "Enter") {
+      event.preventDefault();
+      formRef.current?.requestSubmit();
+    }
   };
 
   // save messages to local storage
@@ -118,13 +126,13 @@ export default function Page() {
         </div>
       </div>
       <div id="chat-input" className="flex mx-2">
-        <div className="flex mx-auto w-screen max-w-[960px] bg-[rgba(225,225,237,0.2)] my-4 rounded-md">
-          <form onSubmit={handleSubmit}>
+        <form  ref={formRef} className="flex mx-auto w-screen max-w-[960px] bg-[rgba(225,225,237,0.2)] my-4 rounded-md" onSubmit={handleSubmit}>
             <TextareaAutosize
               className="bg-transparent flex-1 mr-2 px-2 py-3 resize-none overflow-y-auto text-pat-light font-body"
-              placeholder="Type a message..."
+              placeholder="Type a message... (Ctrl+Enter to send)"
               value={input}
               onChange={handleInputChange}
+              onKeyDown={handleKeyDown}
               disabled={isLoading}
               ref={inputRef}
               maxRows={10}
@@ -132,7 +140,7 @@ export default function Page() {
             />
             <SendButton isSending={isLoading} />
           </form>
-        </div>
+        
       </div>
     </div>
   );

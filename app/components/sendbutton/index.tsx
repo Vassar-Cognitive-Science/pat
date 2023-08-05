@@ -10,6 +10,7 @@ export default function SendButton({
       type="submit"
       className="text-white font-bold py-2 px-4 rounded"
       disabled={isSending}
+      title={"Send Message (Ctrl+Enter)"}
     >
       {isSending ? (
         <i className="fas fa-spinner fa-spin"></i>
