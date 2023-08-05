@@ -2,6 +2,9 @@ import { NextRequest } from "next/server";
 import { NextResponse } from "next/server";
 import { sendMessage } from "../model-config";
 
+export const config = {
+  runtime: "edge"
+}
 
 export async function POST(request: NextRequest): Promise<NextResponse> {
   const requestBody = await request.json();
