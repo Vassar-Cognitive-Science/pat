@@ -81,7 +81,7 @@ export default function Page() {
   useEffect(() => {
     let storedMessages = localStorage.getItem("messages");
     // this is a fix if localStorage is not using the updated messages format
-    if(storedMessages && JSON.parse(storedMessages).length > 1 && JSON.parse(storedMessages)[0].id !== "initial"){
+    if(storedMessages && JSON.parse(storedMessages).length >= 1 && JSON.parse(storedMessages)[0].id !== "initial"){
       localStorage.clear();
       storedMessages = null;
     }
