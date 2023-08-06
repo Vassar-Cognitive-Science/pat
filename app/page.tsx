@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useEffect } from "react";
+import { useState, useRef, useEffect } from "react";
 import ChatMessage from "./components/chatmessage";
 import ClearButton from "./components/clearbutton";
 import "@fortawesome/fontawesome-free/css/all.css";
@@ -25,6 +25,8 @@ export default function Page() {
   const inputRef = useRef<HTMLTextAreaElement>(null);
   const chatMessagesRef = useRef<HTMLDivElement>(null);
   const formRef = useRef<HTMLFormElement>(null);
+
+  const [platform, setPlatform] = useState("");
 
   const handleClearClick = () => {
     localStorage.clear();
@@ -65,6 +67,11 @@ export default function Page() {
       ? JSON.parse(storedMessages)
       : [startingMessage];
     setMessages(loadedMessages);
+  }, []);
+
+  // update platform state
+  useEffect(() => {
+    setPlatform(navigator.platform.toUpperCase());
   }, []);
 
   return (
@@ -110,7 +117,7 @@ export default function Page() {
         <form  ref={formRef} className="flex mx-auto w-screen max-w-[960px] bg-[rgba(225,225,237,0.2)] my-4 rounded-md" onSubmit={handleSubmit}>
             <TextareaAutosize
               className="bg-transparent flex-1 mr-2 px-2 py-3 resize-none overflow-y-auto text-pat-light font-body"
-              placeholder={`Type a message... (${navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+Enter to send)`}
+              placeholder={`Type a message... (${platform.indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+Enter to send)`}
               value={input}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
