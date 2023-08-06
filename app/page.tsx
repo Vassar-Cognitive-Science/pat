@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useRef, useEffect } from "react";
 import ChatMessage from "./components/chatmessage";
 import ClearButton from "./components/clearbutton";
 import "@fortawesome/fontawesome-free/css/all.css";
@@ -18,30 +18,6 @@ const startingMessage: Message = {
   role: "assistant",
 };
 
-// interface Message {
-//   message: string;
-//   sender: "You" | "Pat";
-// }
-
-// async function getPatResponse(
-//   messageHistory: Message[],
-//   messageText: string
-// ): Promise<Message> {
-//   const result = await fetch("/api/message", {
-//     method: "POST",
-//     body: JSON.stringify({ history: messageHistory, message: messageText }),
-//     headers: {
-//       "Content-Type": "application/json",
-//     },
-//   });
-//   const json = await result.json();
-//   console.log(json);
-//   return {
-//     message: json,
-//     sender: "Pat",
-//   };
-// }
-
 export default function Page() {
   const { messages, setMessages, input, handleInputChange, handleSubmit, isLoading } =
     useChat({ api: "api/message" });
@@ -56,7 +32,7 @@ export default function Page() {
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (event.ctrlKey && event.key === "Enter") {
+    if ((event.metaKey || event.ctrlKey) && event.key === "Enter") {
       event.preventDefault();
       formRef.current?.requestSubmit();
     }
@@ -134,7 +110,7 @@ export default function Page() {
         <form  ref={formRef} className="flex mx-auto w-screen max-w-[960px] bg-[rgba(225,225,237,0.2)] my-4 rounded-md" onSubmit={handleSubmit}>
             <TextareaAutosize
               className="bg-transparent flex-1 mr-2 px-2 py-3 resize-none overflow-y-auto text-pat-light font-body"
-              placeholder="Type a message... (Ctrl+Enter to send)"
+              placeholder={`Type a message... (${navigator.platform.toUpperCase().indexOf('MAC') >= 0 ? 'Cmd' : 'Ctrl'}+Enter to send)`}
               value={input}
               onChange={handleInputChange}
               onKeyDown={handleKeyDown}
