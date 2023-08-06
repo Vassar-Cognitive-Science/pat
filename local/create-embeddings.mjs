@@ -43,8 +43,8 @@ const docs = await loader.load();
 // Create token splits for each document
 
 const splitter = new RecursiveCharacterTextSplitter({
-  chunkSize: 400,
-  chunkOverlap: 50,
+  chunkSize: 1024,
+  chunkOverlap: 256,
 });
 
 const docOutput = await splitter.splitDocuments(docs);

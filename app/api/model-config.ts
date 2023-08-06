@@ -16,7 +16,7 @@ const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY as string;
 const supabaseUrl = process.env.SUPABASE_URL as string;
 
 const model = new ChatOpenAI({
-  modelName: "gpt-3.5-turbo",
+  modelName: "gpt-3.5-turbo-16k",
   temperature: 0.9,
   streaming: true,
 });
