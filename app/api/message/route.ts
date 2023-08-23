@@ -15,7 +15,7 @@ export async function POST(request: NextRequest): Promise<StreamingTextResponse>
   const response = await sendMessage(history, humanMessage);
 
   if(response.status != 200) {
-    console.log(`Error: ${response.status}. ${response.text}`)
+    console.log(`Error: ${response.status}. ${response.statusText}`)
   }
 
   return response;
