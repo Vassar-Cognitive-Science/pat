@@ -1,6 +1,7 @@
 import { NextRequest } from "next/server";
 import { sendMessage } from "../model-config";
 import { Message, StreamingTextResponse } from "ai"
+import { Console } from "console";
 
 export const runtime = "edge";
 
@@ -13,7 +14,9 @@ export async function POST(request: NextRequest): Promise<StreamingTextResponse>
 
   const response = await sendMessage(history, humanMessage);
 
-  console.log(response)
+  if(response.status != 200) {
+    console.log(`Error: ${response.status}. ${response.text}`)
+  }
 
   return response;
 }
