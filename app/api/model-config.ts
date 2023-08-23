@@ -69,6 +69,16 @@ const sendMessage = async (
 
   const { stream, handlers } = LangChainStream();
 
+  handlers.handleChainError = (e: Error, runId: string):Promise<void> =>  {
+    console.log(e.message);
+    return Promise.resolve();
+  }
+
+  handlers.handleLLMError = (e: Error, runId: string):Promise<void> =>  {
+    console.log(e.message);
+    return Promise.resolve();
+  }
+
   const chat = new ConversationChain({
     llm: model,
     memory: new BufferMemory({
@@ -90,7 +100,9 @@ const sendMessage = async (
       excerpts: excerpts,
     },
     [handlers]
-  );
+  ).catch((e) => {
+    console.log(e.message);
+  });
 
   return new StreamingTextResponse(stream);
 };
