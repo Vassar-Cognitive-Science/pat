@@ -41,7 +41,6 @@ const loader = new DirectoryLoader(folder, {
 const docs = await loader.load();
 
 // Create token splits for each document
-
 const splitter = new RecursiveCharacterTextSplitter({
   chunkSize: 1024,
   chunkOverlap: 256,

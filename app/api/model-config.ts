@@ -30,6 +30,8 @@ const systemMessage = `
 
     Keep your responses to one main point at a time and be concise.
 
+    Avoid repeteating yourself. Try to push the conversation in new directions.
+
     If the student makes an assertion without reason or evidence, ask \
     them to elaborate or explain. Do not fill in the gaps for them.
 
@@ -91,7 +93,7 @@ const sendMessage = async (
     verbose: false,
   });
 
-  const relevantDocs = await vectorStore.similaritySearch(message.content, 3);
+  const relevantDocs = await vectorStore.similaritySearch(message.content, 2);
   const excerpts = relevantDocs.map((doc) => doc.pageContent).join("\n\n");
 
   chat.call(
