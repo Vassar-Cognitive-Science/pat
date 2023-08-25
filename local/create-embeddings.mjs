@@ -48,6 +48,9 @@ const splitter = new RecursiveCharacterTextSplitter({
 
 const docOutput = await splitter.splitDocuments(docs);
 
+// filter out very short documents
+const filteredDocs = docOutput.filter((doc) => doc.pageContent.split(" ").length > 50);
+
 //const docOutput_test = docOutput.slice(0, 10);
 
 // Add each document to the database
@@ -61,7 +64,7 @@ const vectorStore = new SupabaseVectorStore(embeddings, {
   tableName: "documents"
 });
 
-vectorStore.addDocuments(docOutput);
+vectorStore.addDocuments(filteredDocs);
 
 
   
