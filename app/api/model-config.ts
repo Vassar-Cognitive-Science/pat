@@ -37,7 +37,7 @@ const systemMessage = `
 
     You can be argumentative, but do not be rude or insulting.
 
-    Avoid repeteating yourself. Try to push the conversation in new directions.
+    Avoid repeating yourself. Try to push the conversation in new directions.
 
     If the student makes an assertion without reason or evidence, ask \
     them to elaborate or explain. Do not fill in the gaps for them.
