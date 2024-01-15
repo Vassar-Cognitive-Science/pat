@@ -11,6 +11,7 @@ import { OpenAIEmbeddings } from "langchain/embeddings/openai";
 import { SupabaseVectorStore } from "langchain/vectorstores/supabase";
 import { createClient } from "@supabase/supabase-js";
 import { Message, LangChainStream, StreamingTextResponse } from "ai";
+import { ProxyAgent } from "proxy-agent";
 
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY as string;
 const supabaseUrl = process.env.SUPABASE_URL as string;
@@ -19,6 +20,8 @@ const model = new ChatOpenAI({
   modelName: "gpt-4",
   temperature: 0.9,
   streaming: true,
+}, {
+  httpAgent: new ProxyAgent()
 });
 
 const systemMessage = `
