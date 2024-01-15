@@ -1,26 +1,14 @@
-import { ChatOpenAI } from "langchain/chat_models/openai";
-import { ConversationChain } from "langchain/chains";
-import { BufferMemory, ChatMessageHistory } from "langchain/memory";
-import {
-  SystemMessagePromptTemplate,
-  HumanMessagePromptTemplate,
-  ChatPromptTemplate,
-  MessagesPlaceholder,
-} from "langchain/prompts";
-import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import { SupabaseVectorStore } from "langchain/vectorstores/supabase";
 import { createClient } from "@supabase/supabase-js";
-import { Message, LangChainStream, StreamingTextResponse } from "ai";
+import { Message, StreamingTextResponse, OpenAIStream } from "ai";
+import OpenAI from 'openai';
+import { ChatCompletionSystemMessageParam } from "openai/resources";
 import { ProxyAgent } from "proxy-agent";
 
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY as string;
 const supabaseUrl = process.env.SUPABASE_URL as string;
 
-const model = new ChatOpenAI({
-  modelName: "gpt-4",
-  temperature: 0.9,
-  streaming: true,
-}, {
+const model = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY as string,
   httpAgent: new ProxyAgent()
 });
 
@@ -53,7 +41,7 @@ const systemMessage = `
     {excerpts}`;
 
 const client = createClient(supabaseUrl, supabaseKey);
-const embeddings = new OpenAIEmbeddings();
+/*const embeddings = new OpenAIEmbeddings();
 
 let vectorStore: SupabaseVectorStore = new SupabaseVectorStore(embeddings, {
   client: client,
@@ -64,59 +52,28 @@ const chatPrompt = ChatPromptTemplate.fromPromptMessages([
   SystemMessagePromptTemplate.fromTemplate(systemMessage),
   new MessagesPlaceholder("history"),
   HumanMessagePromptTemplate.fromTemplate("{input}"),
-]);
+]);*/
+
+const systemChatMessage:ChatCompletionSystemMessageParam = {
+  content: systemMessage,
+  role: 'system'
+}
 
 const sendMessage = async (
-  history: Message[],
-  message: Message
+  messages: OpenAI.ChatCompletionMessageParam[]
 ): Promise<StreamingTextResponse> => {
   // convert history into a chat history object
-  const chathistory = new ChatMessageHistory();
-  for (const m of history) {
-    if (m.role == "assistant") {
-      chathistory.addAIChatMessage(m.content);
-    }
-    if (m.role == "user") {
-      chathistory.addUserMessage(m.content);
-    }
-  }
 
-  const { stream, handlers } = LangChainStream();
+  // const relevantDocs = await vectorStore.similaritySearch(message.content, 2);
+  // const excerpts = relevantDocs.map((doc) => doc.pageContent).join("\n\n");
 
-  handlers.handleChainError = (e: Error, runId: string):Promise<void> =>  {
-    console.log(e.message);
-    return Promise.resolve();
-  }
-
-  handlers.handleLLMError = (e: Error, runId: string):Promise<void> =>  {
-    console.log(e.message);
-    return Promise.resolve();
-  }
-
-  const chat = new ConversationChain({
-    llm: model,
-    memory: new BufferMemory({
-      returnMessages: true,
-      memoryKey: "history",
-      inputKey: "input",
-      chatHistory: chathistory,
-    }),
-    prompt: chatPrompt,
-    verbose: false,
+  const response = await model.chat.completions.create({
+    model: 'gpt-4-1106-preview',
+    stream: true,
+    messages: [systemChatMessage, ...messages]
   });
 
-  const relevantDocs = await vectorStore.similaritySearch(message.content, 2);
-  const excerpts = relevantDocs.map((doc) => doc.pageContent).join("\n\n");
-
-  chat.call(
-    {
-      input: message.content,
-      excerpts: excerpts,
-    },
-    [handlers]
-  ).catch((e) => {
-    console.log(e.message);
-  });
+  const stream = OpenAIStream(response);
 
   return new StreamingTextResponse(stream);
 };
