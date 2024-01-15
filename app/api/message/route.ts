@@ -3,7 +3,7 @@ import { sendMessage } from "../model-config";
 import { Message, StreamingTextResponse } from "ai"
 import { ChatCompletionMessageParam, ChatCompletionAssistantMessageParam, ChatCompletionUserMessageParam } from "openai/resources";
 
-export const runtime = "edge";
+export const runtime = "nodejs";
 
 export async function POST(request: NextRequest): Promise<StreamingTextResponse|void> {
   const { messages } : {messages:Message[]} = await request.json();
