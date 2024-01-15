@@ -1,11 +1,13 @@
 import { createClient } from "@supabase/supabase-js";
-import { Message, StreamingTextResponse, OpenAIStream } from "ai";
+import { StreamingTextResponse, OpenAIStream } from "ai";
 import OpenAI from 'openai';
-import { ChatCompletionSystemMessageParam } from "openai/resources";
+import { ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam } from "openai/resources";
 import { ProxyAgent } from "proxy-agent";
 
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY as string;
 const supabaseUrl = process.env.SUPABASE_URL as string;
+
+// refs for next step: https://supabase.com/docs/guides/ai/examples/nextjs-vector-search
 
 const model = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY as string,
@@ -40,7 +42,7 @@ const systemMessage = `
 
     {excerpts}`;
 
-const client = createClient(supabaseUrl, supabaseKey);
+const supabaseClient = createClient(supabaseUrl, supabaseKey);
 /*const embeddings = new OpenAIEmbeddings();
 
 let vectorStore: SupabaseVectorStore = new SupabaseVectorStore(embeddings, {
@@ -62,6 +64,30 @@ const systemChatMessage:ChatCompletionSystemMessageParam = {
 const sendMessage = async (
   messages: OpenAI.ChatCompletionMessageParam[]
 ): Promise<StreamingTextResponse> => {
+  const lastMessage = (messages[messages.length - 1] as ChatCompletionUserMessageParam).content || '';
+
+  const embeddingResponse = await model.embeddings.create({
+    input: lastMessage as string,
+    model: 'text-embedding-ada-002'
+  });
+
+  const embedding = embeddingResponse.data[0].embedding;
+
+  const { error: matchError, data: pageSections } = await supabaseClient.rpc(
+    'match_page_sections',
+    {
+      embedding,
+      match_threshold: 0.78,
+      match_count: 10,
+      min_content_length: 50,
+    }
+  )
+
+  console.log(pageSections);
+
+  //systemChatMessage.content = systemChatMessage.content.replace('{excerpts}', pageSections.map((section:any) => section.page_content).join('\n\n'));
+
+
   // convert history into a chat history object
 
   // const relevantDocs = await vectorStore.similaritySearch(message.content, 2);
