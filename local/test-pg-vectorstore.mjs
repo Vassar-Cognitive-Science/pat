@@ -1,6 +1,7 @@
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { PGVectorStore } from "@langchain/community/vectorstores/pgvector";
 import { config } from "dotenv";
+import { ProxyAgent } from "proxy-agent";
 
 
 // set up environment variables
@@ -12,12 +13,12 @@ const db_config = {
   postgresConnectionOptions: {
     type: "postgres",
     host: "127.0.0.1",
-    port: 5433,
-    user: "myuser",
-    password: "ChangeMe",
-    database: "api",
+    port: 5432,
+    user: process.env.PG_USER,
+    password: process.env.PG_PASSWORD,
+    database: process.env.PG_DB
   },
-  tableName: "testlangchain",
+  tableName: "documents",
   columns: {
     idColumnName: "id",
     vectorColumnName: "vector",
@@ -27,7 +28,11 @@ const db_config = {
 };
 
 const pgvectorStore = await PGVectorStore.initialize(
-  new OpenAIEmbeddings(),
+  new OpenAIEmbeddings({
+    configuration: {
+        httpAgent: new ProxyAgent()
+    }
+  }),
   db_config
 );
 
