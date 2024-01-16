@@ -54,17 +54,17 @@ const filteredDocs = docOutput.filter((doc) => doc.pageContent.split(" ").length
 //const docOutput_test = docOutput.slice(0, 10);
 
 // Add each document to the database
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-const supabaseUrl = process.env.SUPABASE_URL
-const client = createClient(supabaseUrl, supabaseKey)
-const embeddings = new OpenAIEmbeddings();
+// const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+// const supabaseUrl = process.env.SUPABASE_URL
+// const client = createClient(supabaseUrl, supabaseKey)
+// const embeddings = new OpenAIEmbeddings();
 
-const vectorStore = new SupabaseVectorStore(embeddings, {
-  client: client,
-  tableName: "documents"
-});
+// const vectorStore = new SupabaseVectorStore(embeddings, {
+//   client: client,
+//   tableName: "documents"
+// });
 
-vectorStore.addDocuments(filteredDocs);
+// vectorStore.addDocuments(filteredDocs);
 
 
   
