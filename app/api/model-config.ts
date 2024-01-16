@@ -85,6 +85,7 @@ const sendMessage = async (
     }
   )
 
+  console.log(matchError);
   console.log(pageSections);
 
   //systemChatMessage.content = systemChatMessage.content.replace('{excerpts}', pageSections.map((section:any) => section.page_content).join('\n\n'));
