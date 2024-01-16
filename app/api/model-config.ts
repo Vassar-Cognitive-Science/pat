@@ -73,6 +73,8 @@ const sendMessage = async (
 
   const embedding = embeddingResponse.data[0].embedding;
 
+  console.log(embedding);
+
   const { error: matchError, data: pageSections } = await supabaseClient.rpc(
     'match_page_sections',
     {
