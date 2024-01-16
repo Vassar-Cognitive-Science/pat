@@ -1,11 +1,14 @@
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { PGVectorStore } from "@langchain/community/vectorstores/pgvector";
+import { config } from "dotenv";
 
 
+// set up environment variables
+config({path: '.env.local'});
 // First, follow set-up instructions at
 // https://js.langchain.com/docs/modules/indexes/vector_stores/integrations/pgvector
 
-const config = {
+const db_config = {
   postgresConnectionOptions: {
     type: "postgres",
     host: "127.0.0.1",
@@ -25,7 +28,7 @@ const config = {
 
 const pgvectorStore = await PGVectorStore.initialize(
   new OpenAIEmbeddings(),
-  config
+  db_config
 );
 
 await pgvectorStore.addDocuments([
