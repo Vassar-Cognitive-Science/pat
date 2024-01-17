@@ -71,6 +71,8 @@ const sendMessage = async (
   const results = await pgClient.query(query, [embedding_str]);
   //console.log(results.rows); // Array of matching rows
 
+  await pgClient.end();
+
   for (const row of results.rows) {
     console.log(row.content);
   }
