@@ -39,10 +39,7 @@ const systemMessage = `
 
     {excerpts}`;
 
-const systemChatMessage:ChatCompletionSystemMessageParam = {
-  content: systemMessage,
-  role: 'system'
-}
+
 
 const sendMessage = async (
   messages: OpenAI.ChatCompletionMessageParam[]
@@ -72,9 +69,14 @@ const sendMessage = async (
 
   await pgClient.end();
 
-  for (const row of results.rows) {
-    console.log(row.content);
+  const excerpts = results.rows.map((row) => row.content).join('\n\n');
+
+  const systemChatMessage:ChatCompletionSystemMessageParam = {
+    content: systemMessage.replace('{excerpts}', excerpts),
+    role: 'system'
   }
+
+  console.log(systemChatMessage.content)
 
   const response = await model.chat.completions.create({
     model: 'gpt-4-1106-preview',
