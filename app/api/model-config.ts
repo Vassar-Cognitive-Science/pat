@@ -5,8 +5,6 @@ import { ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam } from
 import { ProxyAgent } from "proxy-agent";
 import { Client } from "pg";
 
-const pgClient = new Client(); // gets parameters from env vars
-
 
 const model = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY as string,
@@ -59,6 +57,7 @@ const sendMessage = async (
   const embedding = embeddingResponse.data[0].embedding;
   const embedding_str = JSON.stringify(embedding);
 
+  const pgClient = new Client(); // gets parameters from env vars
   await pgClient.connect();
 
   const query = `
