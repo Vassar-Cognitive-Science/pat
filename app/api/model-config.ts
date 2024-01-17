@@ -64,7 +64,7 @@ const sendMessage = async (
   const query = `
     SELECT *
     FROM documents
-    ORDER BY vector <-> $1
+    ORDER BY vector <=> $1
     LIMIT 3; 
   `;
 
