@@ -13,6 +13,24 @@ import fs from 'fs';
 // set up environment variables
 config({path: '.env.local'});
 
+const db_config = {
+  postgresConnectionOptions: {
+    type: "postgres",
+    host: "127.0.0.1",
+    port: 5432,
+    user: process.env.PG_USER,
+    password: process.env.PG_PASSWORD,
+    database: process.env.PG_DB
+  },
+  tableName: "documents",
+  columns: {
+    idColumnName: "id",
+    vectorColumnName: "vector",
+    contentColumnName: "content",
+    metadataColumnName: "metadata",
+  },
+};
+
 // Clone the pat-data repo into the local folder
 // This should prompt for authentication if needed
 const url = `https://github.com/Vassar-Cognitive-Science/pat-data.git`;
@@ -59,6 +77,19 @@ const filteredDocs = docOutput.filter((doc) => doc.pageContent.split(" ").length
 // const client = createClient(supabaseUrl, supabaseKey)
 // const embeddings = new OpenAIEmbeddings();
 
+const pgvectorStore = await PGVectorStore.initialize(
+  new OpenAIEmbeddings({
+    configuration: {
+        httpAgent: new ProxyAgent()
+    }
+  }),
+  db_config
+);
+
+await pgvectorStore.addDocuments(filteredDocs);
+
+
+await pgvectorStore.end();
 // const vectorStore = new SupabaseVectorStore(embeddings, {
 //   client: client,
 //   tableName: "documents"
