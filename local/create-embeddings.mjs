@@ -3,7 +3,7 @@ import { TextLoader } from "langchain/document_loaders/fs/text";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
 import { OpenAIEmbeddings } from "@langchain/openai";
 import { PGVectorStore } from "@langchain/community/vectorstores/pgvector";
-
+import { ProxyAgent } from "proxy-agent";
 import { config } from "dotenv";
 
 import simpleGit from 'simple-git';
