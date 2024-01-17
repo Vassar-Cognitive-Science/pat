@@ -10,6 +10,8 @@
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.4.0",
+    "@langchain/community": "^0.0.17",
+    "@langchain/openai": "^0.0.12",
     "@supabase/supabase-js": "^2.39.3",
     "@types/node": "20.2.5",
     "@types/react": "18.2.7",
