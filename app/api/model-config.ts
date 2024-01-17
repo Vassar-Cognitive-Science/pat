@@ -1,13 +1,12 @@
-import { createClient } from "@supabase/supabase-js";
+
 import { StreamingTextResponse, OpenAIStream } from "ai";
 import OpenAI from 'openai';
 import { ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam } from "openai/resources";
 import { ProxyAgent } from "proxy-agent";
+import { Client } from "pg";
 
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY as string;
-const supabaseUrl = process.env.SUPABASE_URL as string;
+const pgClient = new Client(); // gets parameters from env vars
 
-// refs for next step: https://supabase.com/docs/guides/ai/examples/nextjs-vector-search
 
 const model = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY as string,
@@ -42,20 +41,6 @@ const systemMessage = `
 
     {excerpts}`;
 
-const supabaseClient = createClient(supabaseUrl, supabaseKey);
-/*const embeddings = new OpenAIEmbeddings();
-
-let vectorStore: SupabaseVectorStore = new SupabaseVectorStore(embeddings, {
-  client: client,
-  tableName: "documents",
-});
-
-const chatPrompt = ChatPromptTemplate.fromPromptMessages([
-  SystemMessagePromptTemplate.fromTemplate(systemMessage),
-  new MessagesPlaceholder("history"),
-  HumanMessagePromptTemplate.fromTemplate("{input}"),
-]);*/
-
 const systemChatMessage:ChatCompletionSystemMessageParam = {
   content: systemMessage,
   role: 'system'
@@ -72,26 +57,19 @@ const sendMessage = async (
   });
 
   const embedding = embeddingResponse.data[0].embedding;
+  const embedding_str = JSON.stringify(embedding);
 
-  const { error: matchError, data: pageSections } = await supabaseClient.rpc(
-    'match_documents',
-    {
-      filter: {},
-      match_count: 3,
-      query_embedding: embedding,
-    }
-  )
+  await pgClient.connect();
 
-  console.log(matchError);
-  console.log(pageSections);
+  const query = `
+    SELECT *
+    FROM documents
+    ORDER BY vector <-> $1
+    LIMIT 3; 
+  `;
 
-  //systemChatMessage.content = systemChatMessage.content.replace('{excerpts}', pageSections.map((section:any) => section.page_content).join('\n\n'));
-
-
-  // convert history into a chat history object
-
-  // const relevantDocs = await vectorStore.similaritySearch(message.content, 2);
-  // const excerpts = relevantDocs.map((doc) => doc.pageContent).join("\n\n");
+  const results = await pgClient.query(query, [embedding_str]);
+  console.log(results.rows); // Array of matching rows
 
   const response = await model.chat.completions.create({
     model: 'gpt-4-1106-preview',
