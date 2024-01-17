@@ -69,7 +69,11 @@ const sendMessage = async (
   `;
 
   const results = await pgClient.query(query, [embedding_str]);
-  console.log(results.rows); // Array of matching rows
+  //console.log(results.rows); // Array of matching rows
+
+  for (const row of results.rows) {
+    console.log(row.content);
+  }
 
   const response = await model.chat.completions.create({
     model: 'gpt-4-1106-preview',
