@@ -60,8 +60,8 @@ const docs = await loader.load();
 
 // Create token splits for each document
 const splitter = new RecursiveCharacterTextSplitter({
-  chunkSize: 1024,
-  chunkOverlap: 256,
+  chunkSize: 2048,
+  chunkOverlap: 512,
 });
 
 const docOutput = await splitter.splitDocuments(docs);
@@ -70,12 +70,6 @@ const docOutput = await splitter.splitDocuments(docs);
 const filteredDocs = docOutput.filter((doc) => doc.pageContent.split(" ").length > 50);
 
 //const docOutput_test = docOutput.slice(0, 10);
-
-// Add each document to the database
-// const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-// const supabaseUrl = process.env.SUPABASE_URL
-// const client = createClient(supabaseUrl, supabaseKey)
-// const embeddings = new OpenAIEmbeddings();
 
 const pgvectorStore = await PGVectorStore.initialize(
   new OpenAIEmbeddings({
@@ -88,14 +82,8 @@ const pgvectorStore = await PGVectorStore.initialize(
 
 await pgvectorStore.addDocuments(filteredDocs);
 
-
 await pgvectorStore.end();
-// const vectorStore = new SupabaseVectorStore(embeddings, {
-//   client: client,
-//   tableName: "documents"
-// });
 
-// vectorStore.addDocuments(filteredDocs);
 
 
   
