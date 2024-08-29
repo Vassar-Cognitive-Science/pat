@@ -1,9 +1,9 @@
 import { DirectoryLoader } from "langchain/document_loaders/fs/directory";
 import { TextLoader } from "langchain/document_loaders/fs/text";
 import { RecursiveCharacterTextSplitter } from "langchain/text_splitter";
-import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-import { SupabaseVectorStore } from "langchain/vectorstores/supabase";
-import { createClient } from "@supabase/supabase-js";
+import { OpenAIEmbeddings } from "@langchain/openai";
+import { PGVectorStore } from "@langchain/community/vectorstores/pgvector";
+import { ProxyAgent } from "proxy-agent";
 import { config } from "dotenv";
 
 import simpleGit from 'simple-git';
@@ -12,6 +12,24 @@ import fs from 'fs';
 
 // set up environment variables
 config({path: '.env.local'});
+
+const db_config = {
+  postgresConnectionOptions: {
+    type: "postgres",
+    host: "127.0.0.1",
+    port: 5432,
+    user: process.env.PG_USER,
+    password: process.env.PG_PASSWORD,
+    database: process.env.PG_DB
+  },
+  tableName: "documents",
+  columns: {
+    idColumnName: "id",
+    vectorColumnName: "vector",
+    contentColumnName: "content",
+    metadataColumnName: "metadata",
+  },
+};
 
 // Clone the pat-data repo into the local folder
 // This should prompt for authentication if needed
@@ -54,17 +72,30 @@ const filteredDocs = docOutput.filter((doc) => doc.pageContent.split(" ").length
 //const docOutput_test = docOutput.slice(0, 10);
 
 // Add each document to the database
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
-const supabaseUrl = process.env.SUPABASE_URL
-const client = createClient(supabaseUrl, supabaseKey)
-const embeddings = new OpenAIEmbeddings();
+// const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY
+// const supabaseUrl = process.env.SUPABASE_URL
+// const client = createClient(supabaseUrl, supabaseKey)
+// const embeddings = new OpenAIEmbeddings();
 
-const vectorStore = new SupabaseVectorStore(embeddings, {
-  client: client,
-  tableName: "documents"
-});
+const pgvectorStore = await PGVectorStore.initialize(
+  new OpenAIEmbeddings({
+    configuration: {
+        httpAgent: new ProxyAgent()
+    }
+  }),
+  db_config
+);
 
-vectorStore.addDocuments(filteredDocs);
+await pgvectorStore.addDocuments(filteredDocs);
+
+
+await pgvectorStore.end();
+// const vectorStore = new SupabaseVectorStore(embeddings, {
+//   client: client,
+//   tableName: "documents"
+// });
+
+// vectorStore.addDocuments(filteredDocs);
 
 
   
