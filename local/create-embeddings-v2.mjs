@@ -2,6 +2,11 @@ const fs = require('fs').promises;
 const path = require('path');
 const { OpenAI } = require('openai');
 const { Pool } = require('pg');
+const { config } = require('dotenv');
+
+
+// set up environment variables
+config({path: '.env.local'});
 
 // Configuration
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
