@@ -34,7 +34,7 @@ const db_config = {
 // Clone the pat-data repo into the local folder
 // This should prompt for authentication if needed
 const url = `https://github.com/Vassar-Cognitive-Science/pat-data.git`;
-const folder = '~/pat-data-main';
+const folder = 'pat-data-main';
 const download_from_github = false;
 
 if(download_from_github){
@@ -77,7 +77,8 @@ const filteredDocs = docOutput.filter((doc) => doc.pageContent.split(" ").length
 const pgvectorStore = await PGVectorStore.initialize(
   new OpenAIEmbeddings({
     configuration: {
-        httpAgent: new ProxyAgent()
+        httpAgent: new ProxyAgent(),
+        model: 'text-embedding-3-large'
     }
   }),
   db_config
