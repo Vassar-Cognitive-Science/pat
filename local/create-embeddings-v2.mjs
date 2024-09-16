@@ -1,6 +1,6 @@
 const fs = require('fs').promises;
 const path = require('path');
-const { Configuration, OpenAIApi } = require('openai');
+const { OpenAI } = require('openai');
 const { Pool } = require('pg');
 
 // Configuration
@@ -17,8 +17,8 @@ const DB_CONFIG = {
 };
 
 // Initialize OpenAI
-const configuration = new Configuration({ apiKey: OPENAI_API_KEY });
-const openai = new OpenAIApi(configuration);
+const configuration = { apiKey: OPENAI_API_KEY };
+const openai = new OpenAI(configuration);
 
 // Initialize Postgres connection pool
 const pool = new Pool(DB_CONFIG);
