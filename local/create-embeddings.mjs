@@ -34,21 +34,24 @@ const db_config = {
 // Clone the pat-data repo into the local folder
 // This should prompt for authentication if needed
 const url = `https://github.com/Vassar-Cognitive-Science/pat-data.git`;
-const folder = 'local/pat-data'
+const folder = '~/pat-data-main';
+const download_from_github = false;
 
-if(fs.existsSync(folder)){
-  fs.rmSync(folder, { recursive: true });
-}
-
-const git = await simpleGit();
-
-await git.clone(url, folder, (err) => {
-  if (err) {
-    console.error(err);
-  } else {
-    console.log('Clone complete');
+if(download_from_github){
+  if(fs.existsSync(folder)){
+    fs.rmSync(folder, { recursive: true });
   }
-});
+
+  const git = await simpleGit();
+
+  await git.clone(url, folder, (err) => {
+    if (err) {
+      console.error(err);
+    } else {
+      console.log('Clone complete');
+    }
+  });
+}
 
 // Create a new directory loader for the pat-data repo
 const loader = new DirectoryLoader(folder, {
