@@ -12,7 +12,7 @@ config({path: '.env.local'});
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
 const CHUNK_SIZE = 1000; // Adjust as needed
 const OVERLAP = 200; // Adjust as needed
-const INPUT_FOLDER = './input_documents';
+const INPUT_FOLDER = '/home/jdeleeuw/pat-data-main';
 const DB_CONFIG = {
   host: "127.0.0.1",
   port: 5432,
