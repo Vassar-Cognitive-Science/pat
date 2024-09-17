@@ -57,15 +57,44 @@ async function readFile(filePath) {
 }
 
 function splitTextIntoChunks(text, chunkSize, overlap) {
+  const paragraphs = text.split('\n\n');
   const chunks = [];
-  let startIndex = 0;
-  
-  while (startIndex < text.length) {
-    const endIndex = Math.min(startIndex + chunkSize, text.length);
-    chunks.push(text.slice(startIndex, endIndex));
-    startIndex = endIndex - overlap;
+  let currentChunk = '';
+
+  paragraphs.forEach(paragraph => {
+    const sentences = paragraph.match(/[^.!?]+[.!?]+/g) || [paragraph];
+    
+    sentences.forEach(sentence => {
+      if (currentChunk.length + sentence.length > chunkSize) {
+        chunks.push(currentChunk.trim());
+        currentChunk = sentence;
+      } else {
+        currentChunk += sentence;
+      }
+    });
+
+    if (currentChunk.length > 0) {
+      chunks.push(currentChunk.trim());
+      currentChunk = '';
+    }
+  });
+
+  // Handle overlap
+  if (overlap > 0) {
+    const overlappedChunks = [];
+    for (let i = 0; i < chunks.length; i++) {
+      const chunk = chunks[i];
+      if (i > 0) {
+        const previousChunk = overlappedChunks[overlappedChunks.length - 1];
+        const overlapText = previousChunk.slice(-overlap);
+        overlappedChunks.push(overlapText + chunk);
+      } else {
+        overlappedChunks.push(chunk);
+      }
+    }
+    return overlappedChunks;
   }
-  
+
   return chunks;
 }
 
