@@ -99,7 +99,7 @@ function splitTextIntoChunks(text, chunkSize, overlap) {
 }
 
 async function getEmbedding(text) {
-  const response = await openai.createEmbedding({
+  const response = await openai.embeddings.create({
     model: 'text-embedding-3-large',
     input: text,
   });
