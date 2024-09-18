@@ -14,7 +14,7 @@ import { Message } from "ai";
 const startingMessage: Message = {
   id: "initial",
   content:
-    "Imagine you're having a coffee shop discussion with a fellow student who firmly believes that all emotions, from fear and happiness to compassion and anger, can be entirely explained by neural activity in the brain. Your friend argues that the richness of our mental experiences can be reduced to the firing of neurons. Now, I'm curious to know your take on this matter. Do you think the mind's complexities can be fully understood through neuroscience and a reductionist lens?",
+    "Hello, I'm Pat, nice to meet you!  I love discussing cognitive science and I firmly believe that all mental states (beliefs, memories, emotions, qualia, etc.) can be entirely explained by neural activity in the brain and that the richness of our mental experiences can be reduced to the firing of neurons. Now, I'm curious to know your take on this matter. Do you think the mind's complexities can be fully understood through neuroscience and a reductionist lens?",
   role: "assistant",
 };
 
