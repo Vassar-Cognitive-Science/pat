@@ -16,9 +16,9 @@ const INPUT_FOLDER = '/home/jdeleeuw/pat-data-main';
 const DB_CONFIG = {
   host: "127.0.0.1",
   port: 5432,
-  user: process.env.PG_USER,
-  password: process.env.PG_PASSWORD,
-  database: process.env.PG_DB
+  user: process.env.PGUSER,
+  password: process.env.PGPASSWORD,
+  database: process.env.PGDATABASE
 };
 
 // Initialize OpenAI
