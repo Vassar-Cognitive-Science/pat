@@ -122,7 +122,7 @@ async function processFile(filePath) {
   try {
     for (const chunk of chunks) {
       const embedding = await getEmbedding(chunk);
-      console.log(`Embedding for chunk: ${embedding}`);
+      //console.log(`Embedding for chunk: ${embedding}`);
       await insertEmbedding(client, chunk, embedding);
     }
     console.log(`Processed file: ${filePath}`);
