@@ -103,7 +103,7 @@ async function getEmbedding(text) {
     model: 'text-embedding-3-large',
     input: text,
   });
-  return response.data.data[0].embedding;
+  return response.data[0].embedding;
 }
 
 async function insertEmbedding(client, content, embedding) {
