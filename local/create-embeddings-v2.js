@@ -111,7 +111,7 @@ async function insertEmbedding(client, content, embedding) {
     INSERT INTO documents (content, embedding)
     VALUES ($1, $2)
   `;
-  await client.query(query, [content, embedding]);
+  await client.query(query, [content, '['+embedding+']']);
 }
 
 async function processFile(filePath) {
@@ -122,6 +122,7 @@ async function processFile(filePath) {
   try {
     for (const chunk of chunks) {
       const embedding = await getEmbedding(chunk);
+      console.log(`Embedding for chunk: ${embedding}`);
       await insertEmbedding(client, chunk, embedding);
     }
     console.log(`Processed file: ${filePath}`);
