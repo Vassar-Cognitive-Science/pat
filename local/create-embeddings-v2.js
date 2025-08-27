@@ -10,8 +10,8 @@ config({path: '.env.local'});
 
 // Configuration
 const OPENAI_API_KEY = process.env.OPENAI_API_KEY;
-const CHUNK_SIZE = 1000; // Adjust as needed
-const OVERLAP = 200; // Adjust as needed
+const CHUNK_SIZE = 2500; // Larger chunks for better context
+const OVERLAP_SENTENCES = 2; // Number of sentences to overlap
 const INPUT_FOLDER = '/home/jdeleeuw/pat-data-main';
 const DB_CONFIG = {
   host: "127.0.0.1",
@@ -36,7 +36,11 @@ async function createPGVectorTable() {
       CREATE TABLE IF NOT EXISTS documents (
         id SERIAL PRIMARY KEY,
         content TEXT,
-        embedding vector(3072)
+        embedding vector(3072),
+        source_file TEXT,
+        chunk_index INTEGER,
+        section_title TEXT,
+        token_count INTEGER
       );
     `);
     console.log('Table created successfully');
@@ -56,45 +60,90 @@ async function readFile(filePath) {
   return fs.readFile(filePath, 'utf8');
 }
 
-function splitTextIntoChunks(text, chunkSize, overlap) {
-  const paragraphs = text.split('\n\n');
+function preprocessText(text) {
+  // Clean up formatting artifacts
+  text = text.replace(/\r\n/g, '\n'); // Normalize line endings
+  text = text.replace(/\n{3,}/g, '\n\n'); // Remove excessive newlines
+  text = text.replace(/[ \t]+/g, ' '); // Normalize whitespace
+  text = text.replace(/\n\s*\n/g, '\n\n'); // Clean paragraph breaks
+  return text.trim();
+}
+
+function extractSectionTitle(text) {
+  // Look for section headers at the beginning of text
+  const lines = text.split('\n');
+  for (let i = 0; i < Math.min(3, lines.length); i++) {
+    const line = lines[i].trim();
+    // Check for common header patterns
+    if (line.length < 100 && (
+      line.match(/^[A-Z][^.!?]*$/) || // All caps or title case without punctuation
+      line.match(/^\d+\.?\s+[A-Z]/) || // Numbered sections
+      line.match(/^Chapter|Section|Part/i) || // Common section words
+      line.match(/^[A-Z][a-z]+:/)  // Title: format
+    )) {
+      return line;
+    }
+  }
+  return null;
+}
+
+function estimateTokenCount(text) {
+  // Rough estimate: ~4 characters per token
+  return Math.ceil(text.length / 4);
+}
+
+function splitTextIntoChunks(text, chunkSize, overlapSentences) {
+  text = preprocessText(text);
+  
+  // Split by paragraphs first to preserve document structure
+  const paragraphs = text.split('\n\n').filter(p => p.trim().length > 0);
   const chunks = [];
   let currentChunk = '';
-
+  let currentSentences = [];
+  
   paragraphs.forEach(paragraph => {
     const sentences = paragraph.match(/[^.!?]+[.!?]+/g) || [paragraph];
     
     sentences.forEach(sentence => {
-      if (currentChunk.length + sentence.length > chunkSize) {
-        chunks.push(currentChunk.trim());
-        currentChunk = sentence;
-      } else {
-        currentChunk += sentence;
+      sentence = sentence.trim();
+      if (!sentence) return;
+      
+      // Check if adding this sentence would exceed chunk size
+      if (currentChunk.length + sentence.length > chunkSize && currentChunk.length > 0) {
+        // Create chunk with current content
+        const chunkInfo = {
+          content: currentChunk.trim(),
+          sentences: [...currentSentences],
+          sectionTitle: extractSectionTitle(currentChunk)
+        };
+        chunks.push(chunkInfo);
+        
+        // Start new chunk with overlap sentences
+        const overlapStart = Math.max(0, currentSentences.length - overlapSentences);
+        currentSentences = currentSentences.slice(overlapStart);
+        currentChunk = currentSentences.join(' ') + (currentSentences.length > 0 ? ' ' : '');
       }
+      
+      currentChunk += sentence + ' ';
+      currentSentences.push(sentence);
     });
-
+    
+    // Add paragraph break if not at end
     if (currentChunk.length > 0) {
-      chunks.push(currentChunk.trim());
-      currentChunk = '';
+      currentChunk += '\n\n';
     }
   });
-
-  // Handle overlap
-  if (overlap > 0) {
-    const overlappedChunks = [];
-    for (let i = 0; i < chunks.length; i++) {
-      const chunk = chunks[i];
-      if (i > 0) {
-        const previousChunk = overlappedChunks[overlappedChunks.length - 1];
-        const overlapText = previousChunk.slice(-overlap);
-        overlappedChunks.push(overlapText + chunk);
-      } else {
-        overlappedChunks.push(chunk);
-      }
-    }
-    return overlappedChunks;
+  
+  // Add final chunk if it has content
+  if (currentChunk.trim().length > 0) {
+    const chunkInfo = {
+      content: currentChunk.trim(),
+      sentences: currentSentences,
+      sectionTitle: extractSectionTitle(currentChunk)
+    };
+    chunks.push(chunkInfo);
   }
-
+  
   return chunks;
 }
 
@@ -106,26 +155,43 @@ async function getEmbedding(text) {
   return response.data[0].embedding;
 }
 
-async function insertEmbedding(client, content, embedding) {
+async function insertEmbedding(client, content, embedding, metadata) {
   const query = `
-    INSERT INTO documents (content, embedding)
-    VALUES ($1, $2)
+    INSERT INTO documents (content, embedding, source_file, chunk_index, section_title, token_count)
+    VALUES ($1, $2, $3, $4, $5, $6)
   `;
-  await client.query(query, [content, '['+embedding+']']);
+  await client.query(query, [
+    content, 
+    '['+embedding+']', 
+    metadata.sourceFile,
+    metadata.chunkIndex,
+    metadata.sectionTitle,
+    metadata.tokenCount
+  ]);
 }
 
 async function processFile(filePath) {
   const content = await readFile(filePath);
-  const chunks = splitTextIntoChunks(content, CHUNK_SIZE, OVERLAP);
+  const chunks = splitTextIntoChunks(content, CHUNK_SIZE, OVERLAP_SENTENCES);
+  const fileName = path.basename(filePath);
   
   const client = await pool.connect();
   try {
-    for (const chunk of chunks) {
-      const embedding = await getEmbedding(chunk);
-      //console.log(`Embedding for chunk: ${embedding}`);
-      await insertEmbedding(client, chunk, embedding);
+    for (let i = 0; i < chunks.length; i++) {
+      const chunkInfo = chunks[i];
+      const embedding = await getEmbedding(chunkInfo.content);
+      
+      const metadata = {
+        sourceFile: fileName,
+        chunkIndex: i,
+        sectionTitle: chunkInfo.sectionTitle,
+        tokenCount: estimateTokenCount(chunkInfo.content)
+      };
+      
+      await insertEmbedding(client, chunkInfo.content, embedding, metadata);
+      console.log(`Processed chunk ${i + 1}/${chunks.length} from ${fileName} (${metadata.tokenCount} tokens)`);
     }
-    console.log(`Processed file: ${filePath}`);
+    console.log(`Completed file: ${filePath} (${chunks.length} chunks)`);
   } catch (err) {
     console.error(`Error processing file ${filePath}:`, err);
   } finally {

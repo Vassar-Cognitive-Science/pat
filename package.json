@@ -6,7 +6,14 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "setup": "cp docker.env.example .env.local && echo '✅ Local environment file created! Please edit .env.local with your OpenAI API key.'",
+    "dev:local": "npm run db:start && npm run dev",
+    "db:start": "docker-compose up -d postgres",
+    "db:stop": "docker-compose stop postgres",
+    "db:seed": "docker-compose --profile seeding up seeder",
+    "docker:full": "docker-compose up -d && docker-compose --profile seeding up seeder",
+    "docker:prod": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d"
   },
   "dependencies": {
     "@fortawesome/fontawesome-free": "^6.4.0",

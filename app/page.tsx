@@ -10,11 +10,11 @@ import PrintButton from "./components/printbutton";
 import SendButton from "./components/sendbutton";
 import { useChat } from "ai/react";
 import { Message } from "ai";
+import { start_message } from "./api/model-prompts";
 
 const startingMessage: Message = {
   id: "initial",
-  content:
-    "Hello, I'm Pat, nice to meet you!  I love discussing cognitive science and I firmly believe that all mental states (beliefs, memories, emotions, qualia, etc.) can be entirely explained by neural activity in the brain and that the richness of our mental experiences can be reduced to the firing of neurons. Now, I'm curious to know your take on this matter. Do you think the mind's complexities can be fully understood through neuroscience and a reductionist lens?",
+  content: start_message,
   role: "assistant",
 };
 
@@ -111,6 +111,13 @@ export default function Page() {
               message={message.content}
             />
           ))}
+          {isLoading && (
+            <ChatMessage
+              sender="Pat"
+              message=""
+              loading={true}
+            />
+          )}
         </div>
       </div>
       <div id="chat-input" className="flex mx-2">

@@ -4,49 +4,49 @@ import OpenAI from 'openai';
 import { ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam } from "openai/resources";
 import { ProxyAgent } from "proxy-agent";
 import { Client } from "pg";
+import { pat_prompt, monitor_agent_prompt } from "./model-prompts";
 
+const MODEL_ID = 'gpt-5-mini';
 
 const model = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY as string,
   httpAgent: new ProxyAgent()
 });
 
-const systemMessage = `
-    Your name is Pat, short for philosophical artificial thinker.
-    
-    You are a cognitive scientist having a casual conversation with one of your students.
-
-    The topic of the conversation is how to understand the mind from a philosophical and scientific perspective.
-
-    Your goal is to provide arguments that challenge the student's ideas. 
-    You want to help them think more critically and deeply about the topic.
-
-    Your responses are concise and to the point. The dialog should focus on one argument at a time.
-
-    You can be argumentative, but do not be rude.
-
-    Avoid repeating yourself. Try to push the conversation in new directions.
-
-    If the student makes an assertion without reason or evidence, ask them to elaborate or explain. 
-    Do not fill in the gaps for them.
-
-    Below are excerpts from trusted sources that may be related to the conversation.
-    The student is familiar with the sources, and these sources might provide a common ground for the conversation. 
-    You can optionally use this information in your response.
-    
-    EXCERPTS
-
-    {excerpts}`;
-
-
-
 const sendMessage = async (
   messages: OpenAI.ChatCompletionMessageParam[]
 ): Promise<StreamingTextResponse> => {
   const lastMessage = (messages[messages.length - 1] as ChatCompletionUserMessageParam).content || '';
 
+  // Step 1: Get monitor agent recommendation
+  const monitorSystemMessage: ChatCompletionSystemMessageParam = {
+    content: monitor_agent_prompt,
+    role: 'system'
+  };
+
+  const monitorResponse = await model.chat.completions.create({
+    model: MODEL_ID,
+    messages: [monitorSystemMessage, ...messages]
+  });
+
+  const topicsRecommendation = monitorResponse.choices[0].message.content || '';
+  console.log('Monitor recommendation:', topicsRecommendation);
+
+  // Step 2: Get relevant excerpts using embeddings with conversation context
+  // Build context-aware query from recent conversation
+  const recentMessages = messages.slice(-3).map(m => {
+    if (m.role === 'user') {
+      return (m as ChatCompletionUserMessageParam).content || '';
+    } else {
+      return (m as any).content || '';
+    }
+  }).filter(content => content.length > 0);
+  
+  const conversationContext = recentMessages.join(' ');
+  const queryText = `${conversationContext} ${lastMessage}`;
+
   const embeddingResponse = await model.embeddings.create({
-    input: lastMessage as string,
+    input: queryText,
     model: 'text-embedding-3-large'
   });
 
@@ -57,28 +57,37 @@ const sendMessage = async (
   await pgClient.connect();
 
   const query = `
-    SELECT *
+    SELECT content, source_file, section_title, chunk_index, token_count,
+           (1 - (embedding <=> $1)) as similarity_score
     FROM documents
+    WHERE (1 - (embedding <=> $1)) > 0.7
     ORDER BY embedding <=> $1
     LIMIT 3; 
   `;
 
   const results = await pgClient.query(query, [embedding_str]);
-  //console.log(results.rows); // Array of matching rows
-
   await pgClient.end();
 
-  const excerpts = results.rows.map((row) => row.content).join('\n\n');
+  const excerpts = results.rows.map((row, index) => {
+    const sourceInfo = row.source_file ? `[Source: ${row.source_file}]` : '';
+    const sectionInfo = row.section_title ? `[Section: ${row.section_title}]` : '';
+    const similarityInfo = `[Relevance: ${(row.similarity_score * 100).toFixed(1)}%]`;
+    
+    return `--- Excerpt ${index + 1} ${sourceInfo} ${sectionInfo} ${similarityInfo} ---\n${row.content}`;
+  }).join('\n\n');
 
-  const systemChatMessage:ChatCompletionSystemMessageParam = {
-    content: systemMessage.replace('{excerpts}', excerpts),
+  // Step 3: Create Pat's system message with monitor recommendation and excerpts
+  const systemChatMessage: ChatCompletionSystemMessageParam = {
+    content: pat_prompt
+      .replace('{topics}', topicsRecommendation)
+      .replace('{excerpts}', excerpts),
     role: 'system'
-  }
+  };
 
-  console.log(systemChatMessage.content)
+  console.log('Pat system message:', systemChatMessage.content);
 
   const response = await model.chat.completions.create({
-    model: 'gpt-4o-2024-08-06',
+    model: MODEL_ID,
     stream: true,
     messages: [systemChatMessage, ...messages]
   });

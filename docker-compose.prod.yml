@@ -1,0 +1,26 @@
+version: '3.8'
+
+services:
+  app:
+    environment:
+      - NODE_ENV=production
+    volumes: []
+    restart: always
+
+  postgres:
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-pat_secure_password}
+    ports: []
+    restart: always
+    
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - app
+    restart: always
