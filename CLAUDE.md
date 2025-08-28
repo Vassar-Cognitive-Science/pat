@@ -134,155 +134,122 @@ The `local/` directory contains scripts for:
 
 ## Production Deployment
 
-### Prerequisites
+### 🚀 Simple One-Command Deployment
 
-1. **Docker & Docker Compose** - Required for containerized deployment
-2. **Environment Configuration** - Copy `docker.env.example` to `.env` and configure:
-   ```bash
-   cp docker.env.example .env
-   ```
-   
-   Required environment variables:
-   - `OPENAI_API_KEY` - OpenAI API key for embeddings and chat
-   - `POSTGRES_PASSWORD` - Secure password for production database
-   - Optional: `PAT_DATA_REPO`, `CHUNK_SIZE`, `OVERLAP_SENTENCES`
+**The easiest way to deploy to production:**
 
-### Deployment Options
-
-#### Option 1: Docker Compose (Recommended)
-
-**Quick Production Deployment:**
 ```bash
-npm run docker:prod
+./deploy.sh
 ```
 
-This command uses both `docker-compose.yml` and `docker-compose.prod.yml` to:
-- Build the Next.js app with multi-stage Docker build
-- Run PostgreSQL with pgvector extension
-- Configure production environment settings
-- Set up nginx reverse proxy (if nginx.conf and SSL certificates are provided)
+This automated script handles everything:
+- ✅ Validates system requirements (Docker, Docker Compose)
+- ✅ Sets up environment configuration
+- ✅ Builds and deploys all services
+- ✅ Provides nginx configuration guidance
+- ✅ Optional database seeding
+- ✅ Shows deployment status and useful commands
 
-**Manual Production Setup:**
+### Manual Deployment Steps
+
+If you prefer manual control:
+
+#### 1. Environment Setup
 ```bash
-# 1. Build and start services
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+# Copy environment template
+cp .env.production .env
 
-# 2. Seed the database with embeddings
-docker-compose --profile seeding up seeder
+# Edit with your values
+nano .env  # Set OPENAI_API_KEY and POSTGRES_PASSWORD
 ```
 
-#### Option 2: PM2 Process Manager
-
-For traditional server deployment with PM2:
-
+#### 2. Deploy Services
 ```bash
-# 1. Install dependencies
-npm ci --only=production
+# Deploy application and database
+docker-compose -f docker-compose.production.yml up -d --build
 
-# 2. Build the application
-npm run build
+# Optional: Seed database with documents
+docker-compose -f docker-compose.production.yml --profile seeding up seeder
+```
 
-# 3. Start with PM2
-npm install -g pm2
-pm2 start ecosystem.config.js
+#### 3. Configure Nginx (System Service)
+```bash
+# Copy nginx configuration
+sudo cp nginx.conf /etc/nginx/sites-available/pat
 
-# 4. Set up PM2 to start on boot
-pm2 startup
-pm2 save
+# Edit domain name
+sudo nano /etc/nginx/sites-available/pat  # Replace 'your-domain.com'
+
+# Enable site
+sudo ln -s /etc/nginx/sites-available/pat /etc/nginx/sites-enabled/
+sudo nginx -t && sudo systemctl reload nginx
 ```
 
 ### Production Architecture
 
-The production setup includes:
+```
+[Internet] → [System Nginx:80/443] → [Docker App:3000] → [Docker PostgreSQL:5432]
+```
 
-- **Next.js Application** (Dockerized, standalone build)
-  - Multi-stage Docker build for optimized image size
-  - Runs on port 3000 internally
-  - Built with `output: 'standalone'` configuration
+**Components:**
+- **Next.js Application**: Dockerized, optimized build, localhost-only access
+- **PostgreSQL Database**: pgvector extension, persistent storage, no external access  
+- **System Nginx**: Reverse proxy, SSL termination, public access
 
-- **PostgreSQL Database** (pgvector/pgvector:pg16)
-  - Vector similarity search with pgvector extension  
-  - Persistent data storage via Docker volumes
-  - Health checks for service dependencies
+### Required Environment Variables
 
-- **Nginx Reverse Proxy** (Optional)
-  - SSL termination (requires nginx.conf and SSL certificates)
-  - Load balancing and static file serving
-  - Configured for ports 80/443
-
-### Environment Variables (Production)
-
-Create `.env` file with production values:
+Create `.env` file with these required values:
 
 ```env
-# OpenAI Configuration
-OPENAI_API_KEY=your_production_openai_api_key
+# REQUIRED
+OPENAI_API_KEY=your_openai_api_key_here
+POSTGRES_PASSWORD=your_secure_password_here
 
-# Database Configuration  
-POSTGRES_PASSWORD=your_secure_production_password
-
-# Application Configuration
-NODE_ENV=production
-
-# Data Seeding (optional)
+# OPTIONAL
+POSTGRES_USER=pat_user
+POSTGRES_DB=pat_db
 DOWNLOAD_DATA=true
 PAT_DATA_REPO=https://github.com/Vassar-Cognitive-Science/pat-data.git
-CHUNK_SIZE=2500
-OVERLAP_SENTENCES=2
 ```
 
-### SSL and Domain Setup
+### Management Commands
 
-For HTTPS deployment with custom domains:
-
-1. **Nginx Configuration**: Create `nginx.conf` with your domain settings
-2. **SSL Certificates**: Place certificates in `./ssl/` directory  
-3. **DNS**: Point your domain to the server IP
-4. **Firewall**: Open ports 80 and 443
-
-### Monitoring and Maintenance
-
-**View Logs:**
 ```bash
-# Application logs
-docker-compose logs -f app
+# View status
+docker-compose -f docker-compose.production.yml ps
 
-# Database logs  
-docker-compose logs -f postgres
+# View logs
+docker-compose -f docker-compose.production.yml logs -f
 
-# All services
-docker-compose logs -f
+# Stop deployment
+docker-compose -f docker-compose.production.yml down
+
+# Update deployment
+git pull && docker-compose -f docker-compose.production.yml up -d --build
+
+# Backup database
+docker-compose -f docker-compose.production.yml exec postgres \
+  pg_dump -U pat_user pat_db > backup.sql
 ```
 
-**Update Deployment:**
+### Troubleshooting
+
+**Common Issues:**
+
+1. **Port conflicts**: App runs on localhost:3000, ensure no conflicts
+2. **Environment variables**: Check `.env` file has required values set
+3. **Database connection**: PostgreSQL starts before app, check health status
+4. **Nginx configuration**: Verify domain name and proxy settings
+
+**Health Checks:**
 ```bash
-# Pull latest changes
-git pull
+# Test app directly
+curl http://127.0.0.1:3000
 
-# Rebuild and restart
-docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+# Check container health
+docker-compose -f docker-compose.production.yml ps
+
+# View detailed logs
+docker-compose -f docker-compose.production.yml logs postgres
+docker-compose -f docker-compose.production.yml logs app
 ```
-
-**Database Backup:**
-```bash
-# Create backup
-docker-compose exec postgres pg_dump -U pat_user pat_db > backup.sql
-
-# Restore backup  
-docker-compose exec -T postgres psql -U pat_user pat_db < backup.sql
-```
-
-### Scaling Considerations
-
-- **Database**: Consider managed PostgreSQL service for production scale
-- **Application**: Use multiple container instances behind load balancer
-- **Storage**: Vector embeddings require adequate disk space
-- **Memory**: OpenAI embeddings and vector search are memory-intensive
-
-### Security Notes
-
-- Use strong passwords for database credentials
-- Keep OpenAI API key secure and rotate regularly  
-- Enable SSL/TLS for all external communications
-- Consider network security and firewall rules
-- Regular security updates for Docker images
