@@ -3,12 +3,12 @@ services:
     environment:
       - NODE_ENV=production
     ports:
-      - "127.0.0.1:3000:3000"  # Only bind to localhost
+      - "127.0.0.1:3000:3000"
     volumes: []
     restart: always
 
   postgres:
     environment:
       - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-pat_secure_password}
-    ports: []
+    ports: [] 
     restart: always
