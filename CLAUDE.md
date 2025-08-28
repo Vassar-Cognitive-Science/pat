@@ -131,3 +131,158 @@ The `local/` directory contains scripts for:
 - Uses proxy agent for OpenAI requests
 - Environment variables expected: `OPENAI_API_KEY`, PostgreSQL connection params
 - Local storage for chat persistence
+
+## Production Deployment
+
+### Prerequisites
+
+1. **Docker & Docker Compose** - Required for containerized deployment
+2. **Environment Configuration** - Copy `docker.env.example` to `.env` and configure:
+   ```bash
+   cp docker.env.example .env
+   ```
+   
+   Required environment variables:
+   - `OPENAI_API_KEY` - OpenAI API key for embeddings and chat
+   - `POSTGRES_PASSWORD` - Secure password for production database
+   - Optional: `PAT_DATA_REPO`, `CHUNK_SIZE`, `OVERLAP_SENTENCES`
+
+### Deployment Options
+
+#### Option 1: Docker Compose (Recommended)
+
+**Quick Production Deployment:**
+```bash
+npm run docker:prod
+```
+
+This command uses both `docker-compose.yml` and `docker-compose.prod.yml` to:
+- Build the Next.js app with multi-stage Docker build
+- Run PostgreSQL with pgvector extension
+- Configure production environment settings
+- Set up nginx reverse proxy (if nginx.conf and SSL certificates are provided)
+
+**Manual Production Setup:**
+```bash
+# 1. Build and start services
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d
+
+# 2. Seed the database with embeddings
+docker-compose --profile seeding up seeder
+```
+
+#### Option 2: PM2 Process Manager
+
+For traditional server deployment with PM2:
+
+```bash
+# 1. Install dependencies
+npm ci --only=production
+
+# 2. Build the application
+npm run build
+
+# 3. Start with PM2
+npm install -g pm2
+pm2 start ecosystem.config.js
+
+# 4. Set up PM2 to start on boot
+pm2 startup
+pm2 save
+```
+
+### Production Architecture
+
+The production setup includes:
+
+- **Next.js Application** (Dockerized, standalone build)
+  - Multi-stage Docker build for optimized image size
+  - Runs on port 3000 internally
+  - Built with `output: 'standalone'` configuration
+
+- **PostgreSQL Database** (pgvector/pgvector:pg16)
+  - Vector similarity search with pgvector extension  
+  - Persistent data storage via Docker volumes
+  - Health checks for service dependencies
+
+- **Nginx Reverse Proxy** (Optional)
+  - SSL termination (requires nginx.conf and SSL certificates)
+  - Load balancing and static file serving
+  - Configured for ports 80/443
+
+### Environment Variables (Production)
+
+Create `.env` file with production values:
+
+```env
+# OpenAI Configuration
+OPENAI_API_KEY=your_production_openai_api_key
+
+# Database Configuration  
+POSTGRES_PASSWORD=your_secure_production_password
+
+# Application Configuration
+NODE_ENV=production
+
+# Data Seeding (optional)
+DOWNLOAD_DATA=true
+PAT_DATA_REPO=https://github.com/Vassar-Cognitive-Science/pat-data.git
+CHUNK_SIZE=2500
+OVERLAP_SENTENCES=2
+```
+
+### SSL and Domain Setup
+
+For HTTPS deployment with custom domains:
+
+1. **Nginx Configuration**: Create `nginx.conf` with your domain settings
+2. **SSL Certificates**: Place certificates in `./ssl/` directory  
+3. **DNS**: Point your domain to the server IP
+4. **Firewall**: Open ports 80 and 443
+
+### Monitoring and Maintenance
+
+**View Logs:**
+```bash
+# Application logs
+docker-compose logs -f app
+
+# Database logs  
+docker-compose logs -f postgres
+
+# All services
+docker-compose logs -f
+```
+
+**Update Deployment:**
+```bash
+# Pull latest changes
+git pull
+
+# Rebuild and restart
+docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --build
+```
+
+**Database Backup:**
+```bash
+# Create backup
+docker-compose exec postgres pg_dump -U pat_user pat_db > backup.sql
+
+# Restore backup  
+docker-compose exec -T postgres psql -U pat_user pat_db < backup.sql
+```
+
+### Scaling Considerations
+
+- **Database**: Consider managed PostgreSQL service for production scale
+- **Application**: Use multiple container instances behind load balancer
+- **Storage**: Vector embeddings require adequate disk space
+- **Memory**: OpenAI embeddings and vector search are memory-intensive
+
+### Security Notes
+
+- Use strong passwords for database credentials
+- Keep OpenAI API key secure and rotate regularly  
+- Enable SSL/TLS for all external communications
+- Consider network security and firewall rules
+- Regular security updates for Docker images
