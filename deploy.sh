@@ -58,14 +58,14 @@ setup_environment() {
     print_status "Setting up environment configuration..."
     
     if [ ! -f .env ]; then
-        if [ -f .env.production ]; then
-            cp .env.production .env
+        if [ -f .env.template ]; then
+            cp .env.template .env
             print_success "Created .env file from template"
             print_warning "Please edit .env file and set your OPENAI_API_KEY and POSTGRES_PASSWORD"
             print_warning "Then run this script again."
             exit 0
         else
-            print_error ".env.production template not found"
+            print_error ".env.template not found"
             exit 1
         fi
     fi

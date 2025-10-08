@@ -157,7 +157,7 @@ If you prefer manual control:
 #### 1. Environment Setup
 ```bash
 # Copy environment template
-cp .env.production .env
+cp .env.template .env
 
 # Edit with your values
 nano .env  # Set OPENAI_API_KEY and POSTGRES_PASSWORD
