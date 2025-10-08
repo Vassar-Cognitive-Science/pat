@@ -1,0 +1,14 @@
+services:
+  app:
+    environment:
+      - NODE_ENV=production
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes: []
+    restart: always
+
+  postgres:
+    environment:
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-pat_secure_password}
+    ports: [] 
+    restart: always

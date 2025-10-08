@@ -1,0 +1,77 @@
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+      args:
+        OPENAI_API_KEY: ${OPENAI_API_KEY}
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_ENV=production
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=pat_user
+      - PGPASSWORD=pat_password
+      - PGDATABASE=pat_db
+      - DATA_PATH=/app/data
+      - CHUNK_SIZE=2500
+      - OVERLAP_SENTENCES=2
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./data:/app/data:ro
+    restart: unless-stopped
+
+  postgres:
+    image: pgvector/pgvector:pg16
+    environment:
+      - POSTGRES_USER=pat_user
+      - POSTGRES_PASSWORD=pat_password
+      - POSTGRES_DB=pat_db
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./init-db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pat_user -d pat_db"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    restart: unless-stopped
+
+  seeder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: runner
+      args:
+        OPENAI_API_KEY: ${OPENAI_API_KEY}
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - PGHOST=postgres
+      - PGPORT=5432
+      - PGUSER=pat_user
+      - PGPASSWORD=pat_password
+      - PGDATABASE=pat_db
+      - DATA_PATH=/app/data
+      - CHUNK_SIZE=2500
+      - OVERLAP_SENTENCES=2
+      - DOWNLOAD_DATA=${DOWNLOAD_DATA:-true}
+      - PAT_DATA_REPO=${PAT_DATA_REPO:-https://github.com/Vassar-Cognitive-Science/pat-data.git}
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./init-db:/app/init-db
+      - ./data:/app/data:ro
+    command: ["node", "/app/init-db/03-seed-embeddings.js"]
+    profiles:
+      - seeding
+
+volumes:
+  postgres_data:
