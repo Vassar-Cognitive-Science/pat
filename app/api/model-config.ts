@@ -4,7 +4,7 @@ import OpenAI from 'openai';
 import { ChatCompletionSystemMessageParam, ChatCompletionUserMessageParam } from "openai/resources";
 import { ProxyAgent } from "proxy-agent";
 import { Client } from "pg";
-import { pat_prompt, monitor_agent_prompt } from "./model-prompts";
+import { pat_prompt } from "./model-prompts";
 
 const MODEL_ID = 'gpt-5-mini';
 
@@ -18,20 +18,7 @@ const sendMessage = async (
 ): Promise<StreamingTextResponse> => {
   const lastMessage = (messages[messages.length - 1] as ChatCompletionUserMessageParam).content || '';
 
-  // Step 1: Get monitor agent recommendation
-  const monitorSystemMessage: ChatCompletionSystemMessageParam = {
-    content: monitor_agent_prompt,
-    role: 'system'
-  };
-
-  const monitorResponse = await model.chat.completions.create({
-    model: MODEL_ID,
-    messages: [monitorSystemMessage, ...messages]
-  });
-
-  const topicsRecommendation = monitorResponse.choices[0].message.content || '';
-  console.log('Monitor recommendation:', topicsRecommendation);
-
+  
   // Step 2: Get relevant excerpts using embeddings with conversation context
   // Build context-aware query from recent conversation
   const recentMessages = messages.slice(-3).map(m => {
@@ -79,7 +66,6 @@ const sendMessage = async (
   // Step 3: Create Pat's system message with monitor recommendation and excerpts
   const systemChatMessage: ChatCompletionSystemMessageParam = {
     content: pat_prompt
-      .replace('{topics}', topicsRecommendation)
       .replace('{excerpts}', excerpts),
     role: 'system'
   };
