@@ -61,7 +61,7 @@ setup_environment() {
         if [ -f .env.template ]; then
             cp .env.template .env
             print_success "Created .env file from template"
-            print_warning "Please edit .env file and set your OPENAI_API_KEY and POSTGRES_PASSWORD"
+            print_warning "Please edit .env file and set your ANTHROPIC_API_KEY, OPENAI_API_KEY, and POSTGRES_PASSWORD"
             print_warning "Then run this script again."
             exit 0
         else
@@ -72,7 +72,12 @@ setup_environment() {
     
     # Validate required environment variables
     source .env
-    
+
+    if [ -z "$ANTHROPIC_API_KEY" ] || [ "$ANTHROPIC_API_KEY" = "your_anthropic_api_key_here" ]; then
+        print_error "ANTHROPIC_API_KEY not set in .env file"
+        exit 1
+    fi
+
     if [ -z "$OPENAI_API_KEY" ] || [ "$OPENAI_API_KEY" = "your_openai_api_key_here" ]; then
         print_error "OPENAI_API_KEY not set in .env file"
         exit 1
