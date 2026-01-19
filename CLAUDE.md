@@ -15,10 +15,10 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 For the best development experience with hot reload:
 
-1. **Setup**: 
+1. **Setup**:
    ```bash
    npm run setup
-   # Edit .env.local file with your OpenAI API key
+   # Edit .env.local file with your Anthropic and OpenAI API keys
    ```
 
 2. **Start Development**: 
@@ -95,7 +95,7 @@ Pat is a Next.js-based chatbot focused on philosophical discussions about cognit
 
 **Backend API (app/api/)**
 - `message/route.ts` - Main chat endpoint that processes user messages
-- `model-config.ts` - OpenAI integration with RAG functionality
+- `model-config.ts` - Anthropic/OpenAI integration with RAG functionality
 - `model-prompts.ts` - System prompts and message processing
 
 ### RAG Implementation
@@ -104,18 +104,19 @@ The system performs semantic search on each user message:
 1. Creates embeddings using OpenAI's `text-embedding-3-large`
 2. Queries PostgreSQL with pgvector for similar content using cosine distance (`<=>`)
 3. Injects top 3 matching excerpts into system prompt
-4. Streams responses using GPT-4o model
+4. Streams responses using Claude Sonnet 4.5 model
 
 ### Data Flow
 
 1. User input → embedding generation → vector similarity search → context retrieval
-2. System prompt + retrieved context + conversation history → OpenAI API
+2. System prompt + retrieved context + conversation history → Anthropic API
 3. Streaming response back to frontend via Vercel AI SDK
 
 ### Key Dependencies
 
-- **Vercel AI SDK** (`ai`) - streaming chat interface and OpenAI integration
-- **OpenAI** - embeddings and chat completions
+- **Vercel AI SDK** (`ai`) - streaming chat interface
+- **Anthropic SDK** - chat completions with Claude Sonnet 4.5
+- **OpenAI** - embeddings (text-embedding-3-large)
 - **PostgreSQL + pgvector** - vector similarity search
 - **LangChain** - additional AI tooling (community package)
 - **Supabase** - likely used for database hosting
@@ -128,8 +129,8 @@ The `local/` directory contains scripts for:
 
 ### Configuration
 
-- Uses proxy agent for OpenAI requests
-- Environment variables expected: `OPENAI_API_KEY`, PostgreSQL connection params
+- Uses proxy agent for OpenAI embedding requests
+- Environment variables expected: `ANTHROPIC_API_KEY`, `OPENAI_API_KEY`, PostgreSQL connection params
 - Local storage for chat persistence
 
 ## Production Deployment
@@ -160,7 +161,7 @@ If you prefer manual control:
 cp .env.template .env
 
 # Edit with your values
-nano .env  # Set OPENAI_API_KEY and POSTGRES_PASSWORD
+nano .env  # Set ANTHROPIC_API_KEY, OPENAI_API_KEY and POSTGRES_PASSWORD
 ```
 
 #### 2. Deploy Services
@@ -202,6 +203,7 @@ Create `.env` file with these required values:
 
 ```env
 # REQUIRED
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
 OPENAI_API_KEY=your_openai_api_key_here
 POSTGRES_PASSWORD=your_secure_password_here
 

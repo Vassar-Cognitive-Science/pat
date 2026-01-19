@@ -7,7 +7,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "setup": "cp docker.env.example .env.local && echo '✅ Local environment file created! Please edit .env.local with your OpenAI API key.'",
+    "setup": "cp docker.env.example .env.local && echo '✅ Local environment file created! Please edit .env.local with your Anthropic and OpenAI API keys.'",
     "dev:local": "npm run db:start && npm run dev",
     "db:start": "docker-compose up -d postgres",
     "db:stop": "docker-compose stop postgres",
@@ -16,6 +16,7 @@
     "docker:prod": "docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^0.52.0",
     "@fortawesome/fontawesome-free": "^6.4.0",
     "@langchain/community": "^0.0.17",
     "@langchain/openai": "^0.0.12",
