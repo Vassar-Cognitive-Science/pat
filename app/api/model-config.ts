@@ -8,7 +8,7 @@ import { ProxyAgent } from "proxy-agent";
 import { Client } from "pg";
 import { pat_prompt } from "./model-prompts";
 
-const MODEL_ID = 'claude-sonnet-4-5-20250514';
+const MODEL_ID = 'claude-sonnet-4-5';
 
 // Anthropic client for chat completions
 const anthropic = new Anthropic({
