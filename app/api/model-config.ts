@@ -6,7 +6,7 @@ import { ProxyAgent } from "proxy-agent";
 import { Client } from "pg";
 import { pat_prompt } from "./model-prompts";
 
-const MODEL_ID = 'gpt-5-mini';
+const MODEL_ID = 'gpt-5.1';
 
 const model = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY as string,
