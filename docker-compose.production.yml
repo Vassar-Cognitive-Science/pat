@@ -10,6 +10,7 @@ services:
       - "127.0.0.1:3000:3000"
     environment:
       - NODE_ENV=production
+      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - PGHOST=postgres
       - PGPORT=5432
